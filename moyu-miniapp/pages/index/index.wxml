@@ -1,0 +1,72 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 顶部日期 -->
+  <view class="header">
+    <text class="date">{{today}} {{weekday}}</text>
+    <text class="greeting">打工人，今天也要加油鸭！</text>
+  </view>
+
+  <!-- 下班倒计时卡片 -->
+  <view class="card countdown-card" bindtap="onSetOffWorkTime" catchtap="onSetOffWorkTime">
+    <view class="card-header">
+      <text class="card-title">距离下班</text>
+      <text class="card-subtitle">📝 {{offWorkTime}} 点击修改</text>
+    </view>
+    <view class="countdown-display">
+      <text wx:if="{{countdown.isOffWork}}" class="countdown-text off-work">
+        已下班，快跑！
+      </text>
+      <text wx:else class="countdown-text">{{countdown.text}}</text>
+    </view>
+    <view wx:if="{{!countdown.isOffWork}}" class="countdown-hint">
+      <text>再坚持一下，自由在向你招手</text>
+    </view>
+  </view>
+
+  <!-- 今日专属语录卡片 -->
+  <view class="card quote-card">
+    <view class="card-header">
+      <text class="card-title">今日专属语录</text>
+      <text class="card-subtitle">{{quoteLoading ? '加载中...' : '每日一句'}}</text>
+    </view>
+    <view class="quote-content">
+      <text class="quote-emoji">{{quote.emoji}}</text>
+      <text class="quote-text">{{quote.content}}</text>
+    </view>
+  </view>
+
+  <!-- 周末倒计时 -->
+  <view class="card weekend-card">
+    <view class="card-row">
+      <text class="card-label">距离周末</text>
+      <text class="card-value {{weekend.isWeekend ? 'highlight' : ''}}">
+        {{weekend.text}}
+      </text>
+    </view>
+  </view>
+
+  <!-- 节假日倒计时 -->
+  <view class="card holiday-card">
+    <view class="card-header">
+      <text class="card-title">未来倒计时</text>
+      <text class="card-subtitle">盼头在这里</text>
+    </view>
+    <view class="holiday-list">
+      <view class="holiday-item" wx:for="{{holidays}}" wx:key="name">
+        <view class="holiday-left">
+          <text class="holiday-emoji">{{item.emoji}}</text>
+          <text class="holiday-name">{{item.name}}</text>
+        </view>
+        <view class="holiday-right">
+          <text class="holiday-days">{{item.daysLeft}}</text>
+          <text class="holiday-unit" wx:if="{{item.daysLeft !== '明天'}}">天</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="footer">
+    <text class="footer-text">莫庾一时爽，一直莫一直爽</text>
+  </view>
+</view>

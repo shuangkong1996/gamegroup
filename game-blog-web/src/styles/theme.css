@@ -1,0 +1,47 @@
+:root {
+  --gg-bg: #f8fafc;
+  --gg-bg-soft: #f1f5f9;
+  --gg-surface: #ffffff;
+  --gg-surface-glass: rgba(255, 255, 255, 0.78);
+  --gg-border: rgba(148, 163, 184, 0.24);
+  --gg-border-strong: rgba(148, 163, 184, 0.36);
+  --gg-text: #0f172a;
+  --gg-text-soft: #64748b;
+  --gg-primary: #1d4ed8;
+  --gg-primary-2: #0ea5e9;
+  --gg-success: #16a34a;
+  --gg-danger: #dc2626;
+  --gg-radius-sm: 10px;
+  --gg-radius-md: 14px;
+  --gg-radius-lg: 18px;
+  --gg-shadow-soft: 0 8px 22px rgba(15, 23, 42, 0.08);
+  --gg-shadow-float: 0 14px 30px rgba(15, 23, 42, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gg-bg: #0b1220;
+    --gg-bg-soft: #111a2b;
+    --gg-surface: #0f172a;
+    --gg-surface-glass: rgba(15, 23, 42, 0.78);
+    --gg-border: rgba(148, 163, 184, 0.28);
+    --gg-border-strong: rgba(148, 163, 184, 0.4);
+    --gg-text: #e2e8f0;
+    --gg-text-soft: #94a3b8;
+    --gg-shadow-soft: 0 8px 20px rgba(2, 6, 23, 0.4);
+    --gg-shadow-float: 0 14px 30px rgba(2, 6, 23, 0.52);
+  }
+}
+
+.gg-glass {
+  background: var(--gg-surface-glass);
+  border: 1px solid var(--gg-border);
+  backdrop-filter: blur(8px);
+}
+
+.gg-panel {
+  background: var(--gg-surface);
+  border: 1px solid var(--gg-border);
+  border-radius: var(--gg-radius-md);
+  box-shadow: var(--gg-shadow-soft);
+}

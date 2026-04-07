@@ -1,0 +1,12 @@
+{
+  "name": "moyu-miniapp",
+  "version": "1.0.0",
+  "description": "莫庾工具集小程序",
+  "main": "app.js",
+  "keywords": [
+    "miniprogram",
+    "wechat",
+    "moyu"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,11 @@
+.vscode/*
+**/target/**
+**/dist/**
+**/node_modules/**
+**/.settings/**
+
+dist.zip
+.DS_Store
+.classpath
+.factorypath
+.project

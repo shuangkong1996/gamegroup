@@ -1,0 +1,35 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/tools/tools",
+    "pages/salary/salary",
+    "pages/toilet/toilet",
+    "pages/fake-work/fake-work",
+    "pages/ledger/ledger",
+    "pages/mortgage/mortgage"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#1a1a2e",
+    "navigationBarTitleText": "莫庾工具集",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#1a1a2e"
+  },
+  "tabBar": {
+    "color": "#8b8b8b",
+    "selectedColor": "#ffd93d",
+    "backgroundColor": "#16213e",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "莫庾"
+      },
+      {
+        "pagePath": "pages/tools/tools",
+        "text": "工具箱"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

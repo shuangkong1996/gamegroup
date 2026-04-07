@@ -1,0 +1,92 @@
+/* pages/tools/tools.wxss */
+.container {
+  padding: 30rpx;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 50rpx;
+}
+
+.title {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #fff;
+  display: block;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #666;
+  margin-top: 12rpx;
+}
+
+.tool-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.tool-card {
+  width: 48%;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 30rpx;
+  text-align: center;
+  border: 2rpx solid transparent;
+  box-sizing: border-box;
+}
+
+.tool-card:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.tool-emoji {
+  font-size: 72rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.tool-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #fff;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.tool-desc {
+  font-size: 24rpx;
+  color: #888;
+}
+
+/* 即将推出 */
+.coming-soon {
+  margin-top: 60rpx;
+  padding: 40rpx;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 24rpx;
+}
+
+.coming-title {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.coming-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.coming-item {
+  font-size: 26rpx;
+  color: #555;
+  margin: 10rpx 0;
+}

@@ -1,0 +1,69 @@
+<!--pages/fake-work/fake-work.wxml-->
+<view class="container">
+  <!-- 模式切换 -->
+  <view class="mode-tabs">
+    <view class="mode-tab {{mode === 'code' ? 'active' : ''}}"
+          bindtap="switchMode" data-mode="code">
+      代码
+    </view>
+    <view class="mode-tab {{mode === 'doc' ? 'active' : ''}}"
+          bindtap="switchMode" data-mode="doc">
+      文档
+    </view>
+    <view class="mode-tab {{mode === 'loading' ? 'active' : ''}}"
+          bindtap="switchMode" data-mode="loading">
+      加载中
+    </view>
+  </view>
+
+  <!-- 代码模式 -->
+  <view wx:if="{{mode === 'code'}}" class="code-container">
+    <view class="code-header">
+      <view class="window-controls">
+        <view class="control red"></view>
+        <view class="control yellow"></view>
+        <view class="control green"></view>
+      </view>
+      <text class="file-name">app.tsx</text>
+    </view>
+    <scroll-view class="code-content" scroll-y>
+      <view class="code-line" wx:for="{{codeLines}}" wx:key="index">
+        <text class="line-number">{{index + 1}}</text>
+        <text class="line-code">{{item}}</text>
+      </view>
+    </scroll-view>
+    <view class="cursor-blink"></view>
+  </view>
+
+  <!-- 文档模式 -->
+  <view wx:if="{{mode === 'doc'}}" class="doc-container">
+    <view class="doc-toolbar">
+      <text class="toolbar-item">文件</text>
+      <text class="toolbar-item">编辑</text>
+      <text class="toolbar-item">视图</text>
+      <text class="toolbar-item">插入</text>
+    </view>
+    <scroll-view class="doc-content" scroll-y>
+      <text class="doc-text">{{docContent}}</text>
+    </scroll-view>
+  </view>
+
+  <!-- 加载模式 -->
+  <view wx:if="{{mode === 'loading'}}" class="loading-container">
+    <view class="loading-box">
+      <view class="loading-icon">
+        <view class="spinner"></view>
+      </view>
+      <text class="loading-text">正在处理中，请稍候...</text>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{loadingProgress}}%"></view>
+      </view>
+      <text class="progress-text">{{loadingProgress}}%</text>
+    </view>
+  </view>
+
+  <!-- 提示 -->
+  <view class="hint">
+    <text class="hint-text">小提示：横屏效果更佳</text>
+  </view>
+</view>

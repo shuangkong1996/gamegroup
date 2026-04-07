@@ -1,0 +1,75 @@
+<!--pages/salary/salary.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="emoji">💰</text>
+    <text class="title">工资计算器</text>
+    <text class="subtitle">看看今天赚了多少钱</text>
+  </view>
+
+  <!-- 今日已赚 -->
+  <view class="earning-card">
+    <text class="earning-label">今日已赚</text>
+    <view class="earning-value-wrapper">
+      <text class="earning-currency">¥</text>
+      <text class="earning-value">{{todayEarnedDisplay}}</text>
+    </view>
+    <text class="earning-hint">钱正在以肉眼可见的速度增加...</text>
+  </view>
+
+  <!-- 费率展示 -->
+  <view class="rate-card">
+    <view class="rate-item">
+      <text class="rate-label">时薪</text>
+      <text class="rate-value">¥{{hourlyRate}}</text>
+    </view>
+    <view class="rate-item">
+      <text class="rate-label">分薪</text>
+      <text class="rate-value">¥{{minuteRate}}</text>
+    </view>
+    <view class="rate-item">
+      <text class="rate-label">秒薪</text>
+      <text class="rate-value">¥{{secondRate}}</text>
+    </view>
+  </view>
+
+  <!-- 设置区域 -->
+  <view class="settings-card">
+    <view class="setting-item">
+      <text class="setting-label">月薪 (元)</text>
+      <input
+        class="setting-input"
+        type="number"
+        value="{{monthlySalary}}"
+        bindinput="onSalaryInput"
+        bindblur="onSalaryBlur"
+        placeholder="输入月薪"
+      />
+    </view>
+
+    <view class="setting-item">
+      <text class="setting-label">每月工作天数</text>
+      <picker
+        mode="selector"
+        range="{{[20, 21, 22, 23, 24, 25, 26]}}"
+        value="{{workDays - 20}}"
+        bindchange="onWorkDaysChange">
+        <view class="setting-picker">{{workDays}} 天</view>
+      </picker>
+    </view>
+
+    <view class="setting-item">
+      <text class="setting-label">每天工作时长</text>
+      <picker
+        mode="selector"
+        range="{{[6, 7, 8, 9, 10, 11, 12]}}"
+        value="{{workHours - 6}}"
+        bindchange="onWorkHoursChange">
+        <view class="setting-picker">{{workHours}} 小时</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="footer">
+    <text class="footer-text">每一秒都是钱，不能白干！</text>
+  </view>
+</view>

@@ -1,0 +1,30 @@
+<!--pages/tools/tools.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">莫庾工具箱</text>
+    <text class="subtitle">总有一款适合你</text>
+  </view>
+
+  <view class="tool-grid">
+    <view
+      class="tool-card"
+      wx:for="{{tools}}"
+      wx:key="id"
+      bindtap="onToolTap"
+      data-id="{{item.id}}"
+      style="border-color: {{item.color}}30;">
+      <text class="tool-emoji">{{item.emoji}}</text>
+      <text class="tool-name">{{item.name}}</text>
+      <text class="tool-desc">{{item.desc}}</text>
+    </view>
+  </view>
+
+  <view class="coming-soon">
+    <text class="coming-title">更多工具开发中...</text>
+    <view class="coming-list">
+      <text class="coming-item">📊 莫庾时长统计</text>
+      <text class="coming-item">🎲 今日宜忌</text>
+      <text class="coming-item">☕ 莫庾小游戏</text>
+    </view>
+  </view>
+</view>

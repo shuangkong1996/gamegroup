@@ -1,0 +1,316 @@
+<view class="ledger-page">
+  <view class="toolbar">
+    <view class="toolbar-row">
+      <view class="toolbar-item">
+        <text class="label">月份</text>
+        <picker mode="date" value="{{monthPickValue}}" start="2000-01-01" end="2099-12-31" bindchange="onMonthPick">
+          <view class="picker-display">
+            <text>{{month || '选择月份'}}</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="toolbar-item">
+        <text class="label">账户</text>
+        <picker mode="selector" range="{{accountFilterRange}}" bindchange="onAccountFilterChange">
+          <view class="picker-display">
+            <text>筛选</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="toolbar-item">
+        <text class="label">分类</text>
+        <picker mode="selector" range="{{categoryFilterRange}}" bindchange="onCategoryFilterChange">
+          <view class="picker-display">
+            <text>筛选</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="toolbar-stats">
+      <view class="stat income">
+        <text class="stat-title">本月收入</text>
+        <text class="stat-value">{{overview.totalIncome}}</text>
+      </view>
+      <view class="stat expense">
+        <text class="stat-title">本月支出</text>
+        <text class="stat-value">{{overview.totalExpense}}</text>
+      </view>
+      <view class="stat">
+        <text class="stat-title">本月结余</text>
+        <text class="stat-value">{{overview.balance}}</text>
+      </view>
+    </view>
+
+    <view class="charts-wrap">
+      <view class="chart-title">支出分类占比</view>
+      <view wx:if="{{expenseCategoryStats.length === 0}}" class="chart-empty">
+        <text>暂无支出数据</text>
+      </view>
+      <view wx:else>
+        <view
+          wx:for="{{expenseCategoryStats}}"
+          wx:key="categoryId"
+          class="category-row"
+        >
+          <view class="category-left">
+            <text class="category-name">{{item.categoryName}}</text>
+            <text class="category-pct">{{item.percentage}}%</text>
+          </view>
+          <view class="category-bar">
+            <view class="category-bar-fill" style="width: {{item.widthPercent}}%"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="chart-title chart-title-margin">近7天趋势</view>
+      <view wx:if="{{trendLast7.length === 0}}" class="chart-empty">
+        <text>暂无趋势数据</text>
+      </view>
+      <view wx:else class="trend-list">
+        <view wx:for="{{trendLast7}}" wx:key="date" class="trend-row">
+          <text class="trend-day">{{item.day}}</text>
+          <view class="trend-bars">
+            <view class="trend-bar-income" style="width: {{item.incomeWidth}}%"></view>
+            <view class="trend-bar-expense" style="width: {{item.expenseWidth}}%"></view>
+          </view>
+          <view class="trend-values">
+            <text class="trend-income">+{{item.income}}</text>
+            <text class="trend-expense">-{{item.expense}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="toolbar-actions">
+      <button class="mini-btn" bindtap="openAccountModal">新增账户</button>
+      <button class="mini-btn" bindtap="openBatchModal">批量记账</button>
+      <button class="mini-btn primary" bindtap="openRecordModal">记一笔</button>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <text>加载中...</text>
+  </view>
+
+  <view wx:else class="content">
+    <view wx:if="{{groupedRecords.length === 0}}" class="empty">
+      <text>暂无账单记录</text>
+    </view>
+
+    <view wx:for="{{groupedRecords}}" wx:key="date" class="day-group">
+      <view class="day-header">
+        <text class="day-date">{{item.date}}</text>
+        <text class="day-sum">收 {{item.totalIncome}} / 支 {{item.totalExpense}}</text>
+      </view>
+
+      <view wx:for="{{item.records}}" wx:key="id" class="record-item">
+        <view class="record-left">
+          <text class="record-title">{{item.categoryName}} · {{item.accountName}}</text>
+          <text class="record-remark">{{item.remark || '-'}}</text>
+        </view>
+        <view class="record-right">
+          <text class="record-money {{item.type===2 ? 'income' : 'expense'}}">
+            {{item.type===2 ? '+' : '-'}}{{item.amount}}
+          </text>
+          <button class="record-del" data-id="{{item.id}}" bindtap="onDeleteRecord">删除</button>
+        </view>
+      </view>
+    </view>
+
+    <button wx:if="{{hasMore}}" class="load-more" bindtap="loadMore" loading="{{loadingList}}">
+      加载更多
+    </button>
+  </view>
+
+  <!-- 底部悬浮按钮（骨架：记一笔） -->
+  <view class="fab">
+    <button class="fab-btn" bindtap="openRecordModal">+ 记账</button>
+  </view>
+
+  <!-- 记一笔弹窗（骨架） -->
+  <view wx:if="{{openRecordModal}}" class="modal-wrap">
+    <view class="modal-mask" bindtap="closeRecordModal"></view>
+    <view class="modal">
+      <view class="modal-title">记一笔</view>
+
+      <view class="form">
+        <view class="form-row">
+          <text class="label">类型</text>
+          <radio-group bindchange="onRecordTypeChange" value="{{recordForm.type}}">
+            <label class="radio">
+              <radio value="1" /> 支出
+            </label>
+            <label class="radio">
+              <radio value="2" /> 收入
+            </label>
+          </radio-group>
+        </view>
+
+        <view class="form-row">
+          <text class="label">账户</text>
+          <picker mode="selector" range="{{accountPickerRange}}" bindchange="onRecordAccountChange">
+            <view class="picker-display">
+              <text>选择账户</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <text class="label">分类</text>
+          <picker mode="selector" range="{{categoryPickerRange}}" bindchange="onRecordCategoryChange">
+            <view class="picker-display">
+              <text>选择分类</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <text class="label">金额</text>
+          <input class="input" value="{{recordForm.amount}}" placeholder="0.01" inputmode="decimal" bindinput="onRecordAmountChange" />
+        </view>
+
+        <view class="form-row">
+          <text class="label">日期</text>
+          <picker mode="date" value="{{recordForm.recordDate}}" bindchange="onRecordDateChange">
+            <view class="picker-display">
+              <text>{{recordForm.recordDate || '选择日期'}}</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <text class="label">时间</text>
+          <picker mode="time" value="{{recordForm.recordTime}}" start="00:00" end="23:59" bindchange="onRecordTimeChange">
+            <view class="picker-display">
+              <text>{{recordForm.recordTime || '选择时间'}}</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <text class="label">备注</text>
+          <textarea class="textarea" value="{{recordForm.remark}}" maxlength="255" placeholder="可选" bindinput="onRecordRemarkChange"></textarea>
+        </view>
+      </view>
+
+      <view class="modal-actions">
+        <button class="mini-btn" bindtap="closeRecordModal">取消</button>
+        <button class="mini-btn primary" bindtap="submitRecord">保存</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新增账户弹窗（骨架） -->
+  <view wx:if="{{openAccountModal}}" class="modal-wrap">
+    <view class="modal-mask" bindtap="closeAccountModal"></view>
+    <view class="modal">
+      <view class="modal-title">新增账户</view>
+      <view class="form">
+        <view class="form-row">
+          <text class="label">名称</text>
+          <input class="input" value="{{accountForm.name}}" placeholder="如 现金" bindinput="onAccountNameChange" />
+        </view>
+        <view class="form-row">
+          <text class="label">类型</text>
+          <input class="input" value="{{accountForm.type}}" placeholder="General" disabled />
+        </view>
+      </view>
+      <view class="modal-actions">
+        <button class="mini-btn" bindtap="closeAccountModal">取消</button>
+        <button class="mini-btn primary" bindtap="submitAccount">保存</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 批量记账弹窗（骨架） -->
+  <view wx:if="{{openBatchModal}}" class="modal-wrap">
+    <view class="modal-mask" bindtap="closeBatchModal"></view>
+    <view class="modal">
+      <view class="modal-title">批量记账</view>
+      <view class="form">
+        <view class="form-row">
+          <text class="label">类型</text>
+          <radio-group bindchange="onBatchTypeChange" value="{{batchForm.type}}">
+            <label class="radio">
+              <radio value="1" /> 支出
+            </label>
+            <label class="radio">
+              <radio value="2" /> 收入
+            </label>
+          </radio-group>
+        </view>
+
+        <view class="form-row">
+          <text class="label">账户</text>
+          <picker mode="selector" range="{{batchAccountPickerRange}}" bindchange="onBatchAccountChange">
+            <view class="picker-display">
+              <text>选择账户</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <text class="label">分类</text>
+          <picker mode="selector" range="{{batchCategoryPickerRange}}" bindchange="onBatchCategoryChange">
+            <view class="picker-display">
+              <text>选择分类</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <text class="label">金额</text>
+          <input class="input" value="{{batchForm.amount}}" placeholder="0.01" inputmode="decimal" bindinput="onBatchAmountChange" />
+        </view>
+
+        <view class="form-row">
+          <text class="label">月份</text>
+          <picker mode="date" value="{{batchMonthPickValue}}" start="2000-01-01" end="2099-12-31" bindchange="onBatchMonthPick">
+            <view class="picker-display">
+              <text>{{batchForm.month || '选择月份'}}</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <view class="batch-tools">
+            <button class="mini-btn batch-tool" bindtap="selectAllWorkdays">全选工作日</button>
+            <button class="mini-btn batch-tool" bindtap="clearBatchDates">清空</button>
+          </view>
+
+          <scroll-view scroll-y="true" class="batch-date-scroll">
+            <view class="batch-date-grid">
+              <view
+                wx:for="{{batchWorkdays}}"
+                wx:key="item"
+                class="batch-date-btn {{batchForm.recordDates.indexOf(item) !== -1 ? 'active' : ''}}"
+                data-date="{{item}}"
+                bindtap="toggleBatchDate"
+              >
+                <text>{{item.slice(8)}}</text>
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+
+        <view class="form-row">
+          <text class="label">备注</text>
+          <textarea class="textarea" value="{{batchForm.remark}}" maxlength="255" placeholder="可选" bindinput="onBatchRemarkChange"></textarea>
+        </view>
+
+        <view class="batch-preview">
+          将创建 <text class="batch-preview-strong">{{batchForm.recordDates.length}}</text> 条记录，共
+          <text class="batch-preview-strong">{{batchTotalAmount}}</text> 元
+        </view>
+      </view>
+      <view class="modal-actions">
+        <button class="mini-btn" bindtap="closeBatchModal">取消</button>
+        <button class="mini-btn primary" bindtap="submitBatchRecords">批量保存</button>
+      </view>
+    </view>
+  </view>
+</view>
+

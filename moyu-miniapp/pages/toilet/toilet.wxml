@@ -1,0 +1,56 @@
+<!--pages/toilet/toilet.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="emoji">🚽</text>
+    <text class="title">带薪拉屎计算器</text>
+    <text class="subtitle">让每一次如厕都有价值</text>
+  </view>
+
+  <!-- 计时器 -->
+  <view class="timer-card {{isRunning ? 'running' : ''}}">
+    <text class="timer-display">{{elapsedDisplay}}</text>
+    <view class="money-display">
+      <text class="money-label">已赚</text>
+      <text class="money-value">¥{{earnedMoney}}</text>
+    </view>
+  </view>
+
+  <!-- 按钮 -->
+  <view class="button-wrapper">
+    <button class="action-btn {{isRunning ? 'stop' : 'start'}}" bindtap="toggleTimer">
+      {{isRunning ? '结束' : '开始'}}
+    </button>
+  </view>
+
+  <!-- 统计 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <text class="stat-value">{{totalTime}}</text>
+      <text class="stat-label">累计秒数</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">¥{{totalMoney}}</text>
+      <text class="stat-label">累计收入</text>
+    </view>
+  </view>
+
+  <!-- 历史记录 -->
+  <view class="history-card" wx:if="{{history.length > 0}}">
+    <view class="history-header">
+      <text class="history-title">历史记录</text>
+      <text class="history-clear" bindtap="clearHistory">清空</text>
+    </view>
+    <view class="history-list">
+      <view class="history-item" wx:for="{{history}}" wx:key="index">
+        <text class="history-date">{{item.date}}</text>
+        <text class="history-duration">{{item.duration}}秒</text>
+        <text class="history-earned">¥{{item.earned}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer">
+    <text class="footer-text">温馨提示：蹲久了对身体不好哦~</text>
+  </view>
+</view>

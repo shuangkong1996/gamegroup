@@ -1,0 +1,138 @@
+<view class="container">
+  <view class="header">
+    <text class="emoji">🏠</text>
+    <text class="title">房贷计算器</text>
+    <text class="subtitle">商贷与公积金可组合，利率可改</text>
+  </view>
+
+  <view class="card" wx:if="{{referenceNote || providentFundRateNote}}">
+    <text class="hint-label">默认利率说明</text>
+    <text class="hint-text" wx:if="{{referencePeriod}}">参考周期：{{referencePeriod}}</text>
+    <text class="hint-text" wx:if="{{providentFundRateNote}}">{{providentFundRateNote}}</text>
+    <text class="hint-text" wx:if="{{referenceNote}}">{{referenceNote}}</text>
+  </view>
+
+  <view class="card">
+    <view class="field">
+      <text class="label">商贷本金（万元）</text>
+      <input class="input" type="digit" placeholder="无则填 0" value="{{commercialWan}}" bindinput="onCommercialWan" />
+    </view>
+    <view class="field">
+      <text class="label">商贷年利率（%）</text>
+      <input class="input" type="digit" placeholder="例如 3.05" value="{{commercialRate}}" bindinput="onCommercialRate" />
+    </view>
+    <view class="field">
+      <text class="label">公积金本金（万元）</text>
+      <input class="input" type="digit" placeholder="无则填 0" value="{{fundWan}}" bindinput="onFundWan" />
+    </view>
+    <view class="field">
+      <text class="label">公积金贷款方案</text>
+      <picker mode="selector" range="{{fundTierLabels}}" value="{{fundTierIndex}}" bindchange="onFundTierChange">
+        <view class="picker-value">{{fundTierLabels[fundTierIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="label">公积金年利率（%）</text>
+      <text class="field-hint">随方案与年限自动填；可自行修改</text>
+      <input class="input" type="digit" placeholder="例如 2.6 或 3.075" value="{{fundRate}}" bindinput="onFundRate" />
+    </view>
+    <view class="field">
+      <text class="label">贷款年限（年）</text>
+      <input class="input" type="number" value="{{years}}" bindinput="onYears" />
+    </view>
+    <view class="field">
+      <text class="label">目标总利息（万元，可选）</text>
+      <text class="field-hint">填了会自动给出 5-10 年内提前还款建议</text>
+      <input class="input" type="digit" placeholder="例如 30" value="{{targetInterestWan}}" bindinput="onTargetInterestWan" />
+    </view>
+    <view class="field">
+      <text class="label">还款方式</text>
+      <picker mode="selector" range="{{repaymentLabels}}" value="{{repaymentIndex}}" bindchange="onRepaymentChange">
+        <view class="picker-value">{{repaymentLabels[repaymentIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <button class="btn-calc" bindtap="onCalculate" loading="{{loading}}" disabled="{{loading}}">计算</button>
+
+  <view class="card result" wx:if="{{calculated && combined}}">
+    <text class="result-title">合计（商贷+公积金）</text>
+    <view class="result-row">
+      <text class="k">首月还款（元）</text>
+      <text class="v">{{combined.firstMonthPayment}}</text>
+    </view>
+    <view class="result-row">
+      <text class="k">末月还款（元）</text>
+      <text class="v">{{combined.lastMonthPayment}}</text>
+    </view>
+    <view class="result-row">
+      <text class="k">还款总额（元）</text>
+      <text class="v highlight">{{combined.totalPayment}}</text>
+    </view>
+    <view class="result-row">
+      <text class="k">利息总额（元）</text>
+      <text class="v highlight">{{combined.totalInterest}}</text>
+    </view>
+    <view class="schedule-toggle" bindtap="toggleSchedule">
+      <text>{{showSchedule ? '收起' : '展开'}}前 12 期明细</text>
+    </view>
+    <scroll-view class="schedule" scroll-y wx:if="{{showSchedule}}">
+      <view class="sch-row sch-head">
+        <text class="c1">期</text>
+        <text class="c2">月供</text>
+        <text class="c3">本金</text>
+        <text class="c4">利息</text>
+      </view>
+      <view class="sch-row" wx:for="{{schedulePreview}}" wx:key="monthIndex">
+        <text class="c1">{{item.monthIndex}}</text>
+        <text class="c2">{{item.monthlyPayment}}</text>
+        <text class="c3">{{item.principalPortion}}</text>
+        <text class="c4">{{item.interestPortion}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="card result" wx:if="{{calculated && prepayAdvice}}">
+    <text class="result-title">提前还款建议（{{prepayAdvice.windowStartYear}}-{{prepayAdvice.windowEndYear}}年）</text>
+    <view class="result-row">
+      <text class="k">原总利息（元）</text>
+      <text class="v">{{prepayAdvice.baseTotalInterest}}</text>
+    </view>
+    <view class="result-row">
+      <text class="k">目标总利息（元）</text>
+      <text class="v">{{prepayAdvice.targetTotalInterestAmount}}</text>
+    </view>
+    <view class="card" wx:if="{{prepayAdvice.optimalPlan}}">
+      <text class="hint-label">推荐最优节点</text>
+      <view class="result-row">
+        <text class="k">建议时点</text>
+        <text class="v">{{prepayAdvice.optimalPlan.prepayAtYear}}年（第{{prepayAdvice.optimalPlan.monthIndex}}期）</text>
+      </view>
+      <view class="result-row">
+        <text class="k">建议提前还款（元）</text>
+        <text class="v highlight">{{prepayAdvice.optimalPlan.requiredPrepayAmount}}</text>
+      </view>
+      <view class="result-row">
+        <text class="k">预计总利息（元）</text>
+        <text class="v">{{prepayAdvice.optimalPlan.projectedTotalInterest}}</text>
+      </view>
+      <view class="result-row">
+        <text class="k">预计节省利息（元）</text>
+        <text class="v">{{prepayAdvice.optimalPlan.estimatedInterestSaved}}</text>
+      </view>
+    </view>
+    <text class="hint-label">总表（全部候选节点）</text>
+    <view class="sch-row sch-head">
+      <text class="c1">年份</text>
+      <text class="c2">需提前还</text>
+      <text class="c3">预计总利息</text>
+      <text class="c4">可达成</text>
+    </view>
+    <view class="sch-row" wx:for="{{prepayAdvice.plans}}" wx:key="monthIndex">
+      <text class="c1">{{item.prepayAtYear}}年</text>
+      <text class="c2">{{item.requiredPrepayAmount}}</text>
+      <text class="c3">{{item.projectedTotalInterest}}</text>
+      <text class="c4">{{item.feasible ? '是' : '否'}}</text>
+    </view>
+  </view>
+</view>

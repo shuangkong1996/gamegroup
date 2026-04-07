@@ -1,0 +1,28 @@
+{
+  "miniprogramRoot": "",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "appid": "wx3b98a6debc490b18",
+  "projectname": "moyu-miniapp",
+  "compileType": "miniprogram",
+  "libVersion": "3.13.0",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}
