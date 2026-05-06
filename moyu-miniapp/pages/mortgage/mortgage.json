@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "房贷计算器",
-  "usingComponents": {}
+  "usingComponents": {},
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true
 }

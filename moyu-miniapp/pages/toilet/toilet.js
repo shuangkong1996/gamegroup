@@ -429,5 +429,18 @@ Page({
         }
       }
     });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '厕所时间',
+      path: '/pages/toilet/toilet'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '厕所时间'
+    };
   }
 });

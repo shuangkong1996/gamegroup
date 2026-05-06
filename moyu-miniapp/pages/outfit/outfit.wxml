@@ -1,0 +1,37 @@
+<view class="container outfit-page" wx:if="{{outfit}}">
+  <view class="city-card">
+    <text class="city-title">天气城市</text>
+    <view class="city-row">
+      <input class="city-input" value="{{city}}" bindinput="onCityInput" placeholder="例如：杭州" />
+      <button class="city-btn" bindtap="onSaveCity" loading="{{savingCity}}">保存</button>
+    </view>
+  </view>
+
+  <view class="weather-card">
+    <text class="weather-city">{{outfit.weatherCity}}</text>
+    <text class="weather-main">{{outfit.weatherCondition}} {{outfit.temperatureMin}}~{{outfit.temperatureMax}}°C</text>
+    <text class="weather-sub">湿度 {{outfit.humidity}}%</text>
+  </view>
+
+  <view class="plan-card">
+    <text class="plan-title">{{outfit.planTitle}}</text>
+    <text class="plan-summary">{{outfit.planSummary}}</text>
+    <text class="plan-reason">{{outfit.planReason}}</text>
+    <text class="plan-tip">{{outfit.comfortTip}}</text>
+  </view>
+
+  <view class="items-card">
+    <view class="outfit-item" wx:for="{{outfit.items}}" wx:key="itemId">
+      <image class="outfit-image" src="{{item.imageUrl}}" mode="aspectFill"></image>
+      <view class="outfit-meta">
+        <text class="outfit-name">{{item.name}}</text>
+        <text class="outfit-role">{{item.itemRole}} · {{item.categoryLevel1 || '未分类'}} · {{item.color || '未知颜色'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="actions">
+    <button class="secondary-btn" bindtap="onRefresh" loading="{{refreshing}}">换一组</button>
+    <button class="primary-btn" bindtap="onAdopt">采纳这套</button>
+  </view>
+</view>

@@ -56,7 +56,13 @@ public enum ErrorCode {
     LEDGER_CATEGORY_NOT_FOUND(6002, "分类不存在"),
     LEDGER_RECORD_NOT_FOUND(6003, "记录不存在"),
     LEDGER_TYPE_MISMATCH(6004, "记录类型与分类类型不一致"),
-    LEDGER_ACCOUNT_BALANCE_NOT_ENOUGH(6005, "账户余额不足");
+    LEDGER_ACCOUNT_BALANCE_NOT_ENOUGH(6005, "账户余额不足"),
+
+    // Wardrobe errors (8xxx)
+    WARDROBE_ITEM_NOT_FOUND(8001, "衣物不存在"),
+    WARDROBE_ITEM_FORBIDDEN(8002, "无权限访问该衣物"),
+    WARDROBE_OUTFIT_PLAN_NOT_FOUND(8003, "搭配方案不存在"),
+    WARDROBE_NO_AVAILABLE_ITEMS(8004, "当前可用衣物较少，请先补充衣物");
 
     private final int code;
     private final String message;

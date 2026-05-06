@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "莫庾工具集"
+  "navigationBarTitleText": "莫庾工具集",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true
 }

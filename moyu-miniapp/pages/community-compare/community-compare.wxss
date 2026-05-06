@@ -1,0 +1,290 @@
+.container {
+  padding: 30rpx;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 28rpx;
+}
+
+.title {
+  color: #fff;
+  font-size: 40rpx;
+  font-weight: bold;
+  display: block;
+}
+
+.subtitle {
+  color: #8892b0;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+  display: block;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  border-radius: 24rpx;
+  padding: 26rpx;
+  margin-bottom: 22rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+}
+
+.search-card {
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.08), rgba(255, 255, 255, 0.04));
+}
+
+.selected-card {
+  background: linear-gradient(180deg, rgba(74, 222, 128, 0.08), rgba(255, 255, 255, 0.04));
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14rpx;
+}
+
+.field {
+  margin-bottom: 16rpx;
+}
+
+.label {
+  color: #b8c2de;
+  font-size: 23rpx;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.input {
+  background: rgba(10, 16, 38, 0.55);
+  border: 1rpx solid rgba(148, 163, 184, 0.2);
+  color: #fff;
+  border-radius: 16rpx;
+  padding: 18rpx 20rpx;
+  font-size: 30rpx;
+}
+
+.btn-primary {
+  margin-top: 10rpx;
+  background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+  color: #0f172a !important;
+  font-weight: 600;
+  border-radius: 999rpx;
+  height: 84rpx;
+  line-height: 84rpx;
+  font-size: 32rpx;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.btn-primary[disabled] {
+  background: rgba(100, 116, 139, 0.6);
+  color: rgba(226, 232, 240, 0.9) !important;
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+.candidate-list {
+  margin-top: 20rpx;
+}
+
+.candidate-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+
+.candidate-main {
+  flex: 1;
+  padding-right: 18rpx;
+}
+
+.candidate-name {
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  display: block;
+}
+
+.candidate-sub,
+.candidate-price {
+  color: #a8b2cc;
+  font-size: 22rpx;
+  display: block;
+  margin-top: 6rpx;
+}
+
+.btn-add {
+  margin-left: 16rpx;
+  margin-top: 2rpx;
+  background: rgba(34, 211, 238, 0.12) !important;
+  color: #67e8f9 !important;
+  border: 1rpx solid rgba(34, 211, 238, 0.45);
+  border-radius: 14rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  padding: 0 16rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+}
+
+.btn-add::after {
+  border: none;
+}
+
+.section-title {
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 600;
+  display: block;
+}
+
+.section-subtitle {
+  color: #9aa6c7;
+  font-size: 22rpx;
+}
+
+.empty-text {
+  margin: 18rpx 0;
+  color: #a8b2cc;
+  font-size: 24rpx;
+}
+
+.selected-list {
+  margin: 14rpx 0 10rpx;
+}
+
+.selected-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+
+.selected-item:last-child {
+  border-bottom: none;
+}
+
+.selected-name {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.remove {
+  color: #fb7185;
+  font-size: 24rpx;
+}
+
+.disclaimer {
+  color: #f59e0b;
+  font-size: 22rpx;
+  line-height: 1.5;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.updated-at {
+  color: #93c5fd;
+  font-size: 22rpx;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.matrix-scroll {
+  width: 100%;
+}
+
+.matrix {
+  min-width: 100%;
+}
+
+.thead,
+.row {
+  display: flex;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.05);
+}
+
+.group-title {
+  color: #22d3ee;
+  font-size: 24rpx;
+  font-weight: 600;
+  margin-top: 16rpx;
+  margin-bottom: 8rpx;
+}
+
+.th {
+  color: #fff;
+  font-weight: 600;
+  font-size: 24rpx;
+  padding: 12rpx 8rpx;
+}
+
+.metric-col {
+  width: 220rpx;
+  flex-shrink: 0;
+  color: #d1d5db;
+  font-size: 23rpx;
+  padding: 12rpx 8rpx;
+}
+
+.value-col {
+  width: 220rpx;
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 23rpx;
+  padding: 12rpx 8rpx;
+}
+
+.unit {
+  color: #9ca3af;
+  margin-left: 4rpx;
+}
+
+.better {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.mortgage-list {
+  margin-top: 18rpx;
+}
+
+.mortgage-card {
+  padding: 18rpx;
+  border-radius: 14rpx;
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 14rpx;
+}
+
+.mortgage-card text {
+  display: block;
+  color: #e5e7eb;
+  font-size: 23rpx;
+  margin-bottom: 4rpx;
+}
+
+.mortgage-title {
+  color: #fff !important;
+  font-size: 26rpx !important;
+  font-weight: 600;
+  margin-bottom: 8rpx !important;
+}
+
+.btn-goto {
+  margin-top: 10rpx;
+  border-radius: 999rpx;
+  background: #f472b6;
+  color: #1f2937;
+  font-weight: 600;
+}

@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "假装工作",
-  "pageOrientation": "auto"
+  "pageOrientation": "auto",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true
 }

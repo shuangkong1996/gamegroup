@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "工资计算器"
+  "navigationBarTitleText": "工资计算器",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true
 }

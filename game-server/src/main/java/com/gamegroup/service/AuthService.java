@@ -166,6 +166,7 @@ public class AuthService {
         return UserSettingsDTO.builder()
                 .offWorkHour(user.getOffWorkHour() != null ? user.getOffWorkHour() : 18)
                 .offWorkMinute(user.getOffWorkMinute() != null ? user.getOffWorkMinute() : 0)
+                .city(user.getCity())
                 .build();
     }
 
@@ -182,14 +183,18 @@ public class AuthService {
         if (request.getOffWorkMinute() != null) {
             user.setOffWorkMinute(request.getOffWorkMinute());
         }
+        if (request.getCity() != null) {
+            user.setCity(request.getCity().trim());
+        }
         
         user = userRepository.save(user);
-        log.info("User settings updated: userId={}, offWorkHour={}, offWorkMinute={}", 
-                userId, user.getOffWorkHour(), user.getOffWorkMinute());
+        log.info("User settings updated: userId={}, offWorkHour={}, offWorkMinute={}, city={}", 
+                userId, user.getOffWorkHour(), user.getOffWorkMinute(), user.getCity());
         
         return UserSettingsDTO.builder()
                 .offWorkHour(user.getOffWorkHour() != null ? user.getOffWorkHour() : 18)
                 .offWorkMinute(user.getOffWorkMinute() != null ? user.getOffWorkMinute() : 0)
+                .city(user.getCity())
                 .build();
     }
 }

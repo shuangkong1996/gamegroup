@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0.31
+    container_name: gamegroup-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: gamegroup1qaz2WSX
+      MYSQL_DATABASE: gamegroup
+      TZ: Asia/Shanghai
+    ports:
+      - "28001:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/conf:/etc/mysql/conf.d
+      - ./mysql/logs:/var/log/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - gamegroup-network
+
+  redis:
+    image: redis:6.0.3
+    container_name: gamegroup-redis
+    restart: always
+    ports:
+      - "28002:6379"
+    volumes:
+      - ./redis/data:/data
+      - ./redis/conf:/usr/local/etc/redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - gamegroup-network
+      
+  minio:
+    image: minio/minio:latest
+    container_name: gamegroup-minio
+    restart: always
+    ports:
+      - "28003:9000" # S3 API 端口 (代码连接用)
+      - "28004:9001" # Web 控制台端口 (浏览器访问用)
+    environment:
+      MINIO_ROOT_USER: admin                  # 管理员账号
+      MINIO_ROOT_PASSWORD: gamegroup1qaz2WSX  # 管理员密码
+    volumes:
+      - ./minio/data:/data                    # 数据持久化目录
+    command: server /data --console-address ":9001"
+    networks:
+      - gamegroup-network
+
+  game-server:
+    build:
+      context: ./gamegroup
+      dockerfile: Dockerfile
+    container_name: gamegroup-server
+    restart: always
+    ports:
+      - "28011:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_PASSWORD=gamegroup1qaz2WSX
+      - REDIS_PASSWORD=gamegroup1qaz2WSX
+      - WX_APPID=wx3b98a6debc490b18
+      - WX_SECRET=0ea02587c71a3b17e2e39ce3505587ec
+      - JWT_SECRET=W4KO5moSy9ATGQ79Par1345JyxMKb0tft
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - gamegroup-network
+
+networks:
+  gamegroup-network:
+    driver: bridge
+

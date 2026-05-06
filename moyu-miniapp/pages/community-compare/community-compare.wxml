@@ -1,0 +1,89 @@
+<view class="container">
+  <view class="header">
+    <text class="title">小区对比助手</text>
+    <text class="subtitle">搜索小区，最多 3 个并排对比</text>
+  </view>
+
+  <view class="card search-card">
+    <view class="card-head">
+      <text class="section-title">搜索小区</text>
+      <text class="section-subtitle">支持名称模糊检索</text>
+    </view>
+    <view class="field">
+      <text class="label">城市</text>
+      <input class="input" value="{{city}}" bindinput="onCityInput" placeholder="默认重庆" />
+    </view>
+    <view class="field">
+      <text class="label">小区关键词</text>
+      <input class="input" value="{{keyword}}" bindinput="onKeywordInput" placeholder="输入小区名并搜索" />
+    </view>
+    <button class="btn-primary" bindtap="onSearch" loading="{{searching}}" disabled="{{searching}}">搜索</button>
+
+    <view class="candidate-list" wx:if="{{searchResults.length}}">
+      <view class="candidate-item" wx:for="{{searchResults}}" wx:key="id">
+        <view class="candidate-main">
+          <text class="candidate-name">{{item.name}}</text>
+          <text class="candidate-sub">{{item.city}} {{item.district || ''}}</text>
+          <text class="candidate-price" wx:if="{{item.listingAvgPrice}}">挂牌均价：{{item.listingAvgPrice}} 元/㎡</text>
+        </view>
+        <button class="btn-add" size="mini" data-id="{{item.id}}" bindtap="onAddCommunity">加入对比</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="card selected-card">
+    <view class="card-head">
+      <text class="section-title">对比栏（{{selected.length}}/3）</text>
+      <text class="section-subtitle">至少选择 2 个小区</text>
+    </view>
+    <view wx:if="{{selected.length === 0}}" class="empty-text">先添加 2-3 个小区再开始对比</view>
+    <view class="selected-list" wx:if="{{selected.length > 0}}">
+      <view class="selected-item" wx:for="{{selected}}" wx:key="id">
+        <text class="selected-name">{{item.name}}</text>
+        <text class="remove" data-id="{{item.id}}" bindtap="onRemoveCommunity">移除</text>
+      </view>
+    </view>
+    <button class="btn-primary" bindtap="onCompare" loading="{{comparing}}" disabled="{{comparing || selected.length < 2}}">
+      生成对比
+    </button>
+  </view>
+
+  <view class="card" wx:if="{{compareData}}">
+    <text class="updated-at">数据更新时间：{{compareData.dataUpdatedAt || '--'}}</text>
+    <text class="disclaimer">{{compareData.dataDisclaimer}}</text>
+
+    <scroll-view class="matrix-scroll" scroll-x="{{isThreeColumns}}">
+      <view class="matrix">
+        <view class="thead">
+          <view class="th metric-col">对比项</view>
+          <view class="th value-col" wx:for="{{compareData.communities}}" wx:key="id">{{item.name}}</view>
+        </view>
+
+        <block wx:for="{{compareData.groups}}" wx:key="key">
+          <view class="group-title">{{item.label}}</view>
+          <block wx:for="{{item.items}}" wx:key="field">
+            <view class="row">
+              <view class="metric-col">
+                <text>{{item.label}}</text>
+                <text wx:if="{{item.unit}}" class="unit">({{item.unit}})</text>
+              </view>
+              <view class="value-col" wx:for="{{item.values}}" wx:key="index">
+                <text class="{{metricClassMap[item.field + '-' + index] || ''}}">{{item}}</text>
+              </view>
+            </view>
+          </block>
+        </block>
+      </view>
+    </scroll-view>
+
+    <view class="mortgage-list">
+      <view class="mortgage-card" wx:for="{{compareData.communities}}" wx:key="id">
+        <text class="mortgage-title">{{item.name}}</text>
+        <text>参考总价：{{item.mortgageReference.totalPrice}} 元</text>
+        <text>参考首付：{{item.mortgageReference.downPayment}} 元</text>
+        <text>参考月供：{{item.mortgageReference.monthlyPayment}} 元</text>
+        <button class="btn-goto" data-id="{{item.id}}" bindtap="goMortgage">去房贷计算</button>
+      </view>
+    </view>
+  </view>
+</view>

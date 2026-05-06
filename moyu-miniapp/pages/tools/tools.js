@@ -17,11 +17,11 @@ Page({
         color: '#4ade80'
       },
       {
-        id: 'fake-work',
-        name: '假装工作',
-        desc: '老板来了一键切换',
-        emoji: '💻',
-        color: '#60a5fa'
+        id: 'wardrobe',
+        name: '我的衣柜',
+        desc: '整理衣物和随机搭配',
+        emoji: '👕',
+        color: '#fb923c'
       },
       {
         id: 'ledger',
@@ -36,6 +36,13 @@ Page({
         desc: '商贷+公积金组合',
         emoji: '🏠',
         color: '#f472b6'
+      },
+      {
+        id: 'community-compare',
+        name: '小区对比助手',
+        desc: '搜索对比并联动房贷',
+        emoji: '🏘️',
+        color: '#22d3ee'
       }
     ]
   },
@@ -45,5 +52,18 @@ Page({
     wx.navigateTo({
       url: `/pages/${id}/${id}`
     });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '工具箱',
+      path: '/pages/tools/tools'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '工具箱'
+    };
   }
 });

@@ -87,34 +87,42 @@ public class LedgerController {
     public ApiResponse<LedgerRecordQueryResponse> queryRecords(
             @RequestAttribute("userId") Long userId,
             @RequestParam(required = false) String month,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
             @RequestParam(required = false) Long accountId,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "50") int size) {
-        return ApiResponse.success(ledgerService.queryRecords(userId, month, accountId, categoryId, page, size));
+        return ApiResponse.success(ledgerService.queryRecords(userId, month, startDate, endDate, accountId, categoryId, page, size));
     }
 
     @Operation(summary = "获取月度总览")
     @GetMapping("/stats/overview")
     public ApiResponse<LedgerOverviewStatsDTO> getOverviewStats(
             @RequestAttribute("userId") Long userId,
-            @RequestParam(required = false) String month) {
-        return ApiResponse.success(ledgerService.getOverviewStats(userId, month));
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        return ApiResponse.success(ledgerService.getOverviewStats(userId, month, startDate, endDate));
     }
 
     @Operation(summary = "获取每日收支趋势")
     @GetMapping("/stats/trend")
     public ApiResponse<List<LedgerTrendPointDTO>> getTrendStats(
             @RequestAttribute("userId") Long userId,
-            @RequestParam(required = false) String month) {
-        return ApiResponse.success(ledgerService.getTrendStats(userId, month));
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        return ApiResponse.success(ledgerService.getTrendStats(userId, month, startDate, endDate));
     }
 
     @Operation(summary = "获取分类占比")
     @GetMapping("/stats/category")
     public ApiResponse<LedgerCategoryStatsResponse> getCategoryStats(
             @RequestAttribute("userId") Long userId,
-            @RequestParam(required = false) String month) {
-        return ApiResponse.success(ledgerService.getCategoryStats(userId, month));
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        return ApiResponse.success(ledgerService.getCategoryStats(userId, month, startDate, endDate));
     }
 }

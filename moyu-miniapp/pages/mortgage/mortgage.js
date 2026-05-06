@@ -5,6 +5,8 @@ const PROVIDENT_TIERS = ['FIRST_HOME', 'SECOND_HOME'];
 
 Page({
   data: {
+    sourceCommunityName: '',
+    sourceHouseTotal: '',
     commercialWan: '70',
     fundWan: '50',
     years: 30,
@@ -28,7 +30,21 @@ Page({
     showSchedule: false
   },
 
-  onLoad() {
+  onLoad(options) {
+    const patch = {};
+    if (options && options.communityName) {
+      patch.sourceCommunityName = decodeURIComponent(options.communityName);
+    }
+    if (options && options.houseTotal) {
+      patch.sourceHouseTotal = options.houseTotal;
+    }
+    if (options && options.commercialWan) {
+      patch.commercialWan = options.commercialWan;
+      patch.fundWan = '0';
+    }
+    if (Object.keys(patch).length > 0) {
+      this.setData(patch);
+    }
     this.loadDefaults();
   },
 
@@ -184,6 +200,19 @@ Page({
     } catch (err) {
       this.setData({ loading: false });
     }
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '房贷计算器',
+      path: '/pages/mortgage/mortgage'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '房贷计算器'
+    };
   }
 });
 

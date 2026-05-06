@@ -37,7 +37,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/v3/api-docs/**",
                         "/articles", // 允许未登录查看文章列表
                         "/articles/*", // 允许未登录查看文章详情
-                        "/mortgage/**" // 房贷计算器（纯计算，无需登录）
+                        "/mortgage/**", // 房贷计算器（纯计算，无需登录）
+                        "/community/**" // 小区对比助手（公共工具）
                 );
     }
 }

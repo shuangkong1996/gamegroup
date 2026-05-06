@@ -1,5 +1,7 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "记账台账"
+  "navigationBarTitleText": "记账台账",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true
 }
 

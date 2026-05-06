@@ -212,12 +212,19 @@ public class LedgerService {
         log.info("Ledger record deleted: recordId={}, userId={}", recordId, userId);
     }
 
-    public LedgerRecordQueryResponse queryRecords(Long userId, String month, Long accountId, Long categoryId, int page, int size) {
+    public LedgerRecordQueryResponse queryRecords(
+            Long userId,
+            String month,
+            String startDate,
+            String endDate,
+            Long accountId,
+            Long categoryId,
+            int page,
+            int size
+    ) {
         int safePage = Math.max(1, page);
         int safeSize = Math.min(Math.max(1, size), 200);
-        YearMonth yearMonth = parseYearMonth(month);
-        LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime end = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
+        DateRange range = resolveRange(month, startDate, endDate);
         Pageable pageable = PageRequest.of(safePage - 1, safeSize);
 
         if (accountId != null) {
@@ -229,7 +236,7 @@ public class LedgerService {
                     .orElseThrow(() -> new BusinessException(ErrorCode.LEDGER_CATEGORY_NOT_FOUND));
         }
 
-        Page<LedgerRecord> records = queryRecordPage(userId, start, end, accountId, categoryId, pageable);
+        Page<LedgerRecord> records = queryRecordPage(userId, range.start(), range.endExclusive(), accountId, categoryId, pageable);
         Map<LocalDate, List<LedgerRecord>> grouped = new LinkedHashMap<>();
         for (LedgerRecord record : records.getContent()) {
             grouped.computeIfAbsent(record.getRecordTime().toLocalDate(), ignored -> new ArrayList<>()).add(record);
@@ -263,9 +270,9 @@ public class LedgerService {
                 .build();
     }
 
-    public LedgerOverviewStatsDTO getOverviewStats(Long userId, String month) {
-        YearMonth yearMonth = parseYearMonth(month);
-        List<LedgerRecord> records = findMonthRecords(userId, yearMonth);
+    public LedgerOverviewStatsDTO getOverviewStats(Long userId, String month, String startDate, String endDate) {
+        DateRange range = resolveRange(month, startDate, endDate);
+        List<LedgerRecord> records = findRecordsByRange(userId, range);
         BigDecimal totalIncome = BigDecimal.ZERO;
         BigDecimal totalExpense = BigDecimal.ZERO;
         for (LedgerRecord record : records) {
@@ -282,17 +289,19 @@ public class LedgerService {
                 .build();
     }
 
-    public List<LedgerTrendPointDTO> getTrendStats(Long userId, String month) {
-        YearMonth yearMonth = parseYearMonth(month);
-        List<LedgerRecord> records = findMonthRecords(userId, yearMonth);
+    public List<LedgerTrendPointDTO> getTrendStats(Long userId, String month, String startDate, String endDate) {
+        DateRange range = resolveRange(month, startDate, endDate);
+        List<LedgerRecord> records = findRecordsByRange(userId, range);
         Map<LocalDate, LedgerTrendPointDTO> dayMap = new LinkedHashMap<>();
-        for (int day = 1; day <= yearMonth.lengthOfMonth(); day++) {
-            LocalDate date = yearMonth.atDay(day);
+        LocalDate cursor = range.startDate();
+        while (!cursor.isAfter(range.endDate())) {
+            LocalDate date = cursor;
             dayMap.put(date, LedgerTrendPointDTO.builder()
                     .date(date.format(DATE_FORMATTER))
                     .income(BigDecimal.ZERO)
                     .expense(BigDecimal.ZERO)
                     .build());
+            cursor = cursor.plusDays(1);
         }
         for (LedgerRecord record : records) {
             LocalDate date = record.getRecordTime().toLocalDate();
@@ -309,9 +318,9 @@ public class LedgerService {
         return dayMap.values().stream().toList();
     }
 
-    public LedgerCategoryStatsResponse getCategoryStats(Long userId, String month) {
-        YearMonth yearMonth = parseYearMonth(month);
-        List<LedgerRecord> records = findMonthRecords(userId, yearMonth);
+    public LedgerCategoryStatsResponse getCategoryStats(Long userId, String month, String startDate, String endDate) {
+        DateRange range = resolveRange(month, startDate, endDate);
+        List<LedgerRecord> records = findRecordsByRange(userId, range);
         return LedgerCategoryStatsResponse.builder()
                 .expense(buildCategoryStats(records, TYPE_EXPENSE))
                 .income(buildCategoryStats(records, TYPE_INCOME))
@@ -389,10 +398,58 @@ public class LedgerService {
         }
     }
 
-    private List<LedgerRecord> findMonthRecords(Long userId, YearMonth yearMonth) {
-        LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime end = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
-        return ledgerRecordRepository.findByUserIdAndRecordTimeBetweenOrderByRecordTimeAscIdAsc(userId, start, end);
+    private LocalDate parseLocalDate(String value, String fieldName) {
+        String raw = value == null ? "" : value.trim();
+        try {
+            if (raw.length() == 7) {
+                YearMonth ym = YearMonth.parse(raw);
+                // 自定义区间若传 yyyy-MM，默认按整月展开
+                return fieldName.equals("startDate") ? ym.atDay(1) : ym.atEndOfMonth();
+            }
+            return LocalDate.parse(raw, DATE_FORMATTER);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST.getCode(), fieldName + "格式应为yyyy-MM-dd或yyyy-MM");
+        }
+    }
+
+    private DateRange resolveRange(String month, String startDate, String endDate) {
+        boolean hasStart = startDate != null && !startDate.isBlank();
+        boolean hasEnd = endDate != null && !endDate.isBlank();
+
+        if (hasStart || hasEnd) {
+            if (!hasStart || !hasEnd) {
+                throw new BusinessException(ErrorCode.BAD_REQUEST.getCode(), "startDate和endDate需同时传入");
+            }
+            LocalDate start = parseLocalDate(startDate, "startDate");
+            LocalDate end = parseLocalDate(endDate, "endDate");
+            if (start.isAfter(end)) {
+                throw new BusinessException(ErrorCode.BAD_REQUEST.getCode(), "startDate不能晚于endDate");
+            }
+            return new DateRange(start, end);
+        }
+
+        YearMonth yearMonth = parseYearMonth(month);
+        LocalDate start = yearMonth.atDay(1);
+        LocalDate end = yearMonth.atEndOfMonth();
+        return new DateRange(start, end);
+    }
+
+    private List<LedgerRecord> findRecordsByRange(Long userId, DateRange range) {
+        return ledgerRecordRepository.findByUserIdAndRecordTimeBetweenOrderByRecordTimeAscIdAsc(
+                userId,
+                range.start(),
+                range.endExclusive()
+        );
+    }
+
+    private record DateRange(LocalDate startDate, LocalDate endDate) {
+        private LocalDateTime start() {
+            return startDate.atStartOfDay();
+        }
+
+        private LocalDateTime endExclusive() {
+            return endDate.plusDays(1).atStartOfDay();
+        }
     }
 
     private List<LedgerCategoryStatsItemDTO> buildCategoryStats(List<LedgerRecord> records, Integer type) {

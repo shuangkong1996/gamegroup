@@ -37,6 +37,9 @@ public class User {
     @Column(length = 20)
     private String phone;
 
+    @Column(length = 50)
+    private String city;
+
     @Column(name = "off_work_hour")
     private Integer offWorkHour;
 

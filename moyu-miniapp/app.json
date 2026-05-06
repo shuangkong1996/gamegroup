@@ -6,13 +6,18 @@
     "pages/toilet/toilet",
     "pages/fake-work/fake-work",
     "pages/ledger/ledger",
-    "pages/mortgage/mortgage"
+    "pages/mortgage/mortgage",
+    "pages/community-compare/community-compare",
+    "pages/wardrobe/wardrobe",
+    "pages/wardrobe-item/wardrobe-item",
+    "pages/outfit/outfit",
+    "pages/outfit-history/outfit-history"
   ],
   "window": {
     "navigationBarBackgroundColor": "#1a1a2e",
     "navigationBarTitleText": "莫庾工具集",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#1a1a2e"
+    "backgroundColor": "#16213e"
   },
   "tabBar": {
     "color": "#8b8b8b",

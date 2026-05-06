@@ -260,5 +260,18 @@ Page({
         }
       }
     });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '莫庾工具集',
+      path: '/pages/index/index'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '莫庾工具集'
+    };
   }
 });

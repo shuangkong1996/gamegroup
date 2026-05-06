@@ -1,7 +1,7 @@
 // utils/api.js
 // API 接口封装
 
-const { get, post, put } = require('./request');
+const { request, get, post, put, upload } = require('./request');
 
 // 语录相关
 const quoteApi = {
@@ -21,7 +21,12 @@ const authApi = {
   getSettings: () => get('/auth/settings'),
 
   // 更新用户设置
-  updateSettings: (offWorkHour, offWorkMinute) => put('/auth/settings', { offWorkHour, offWorkMinute })
+  updateSettings: (offWorkHour, offWorkMinute, city) => {
+    if (typeof offWorkHour === 'object' && offWorkHour !== null) {
+      return put('/auth/settings', offWorkHour);
+    }
+    return put('/auth/settings', { offWorkHour, offWorkMinute, city });
+  }
 };
 
 // 厕所时间相关
@@ -63,7 +68,7 @@ const ledgerApi = {
   createRecurringRule: (data) => post('/ledger/recurring-rules', data),
 
   // 删除记录
-  deleteRecord: (id) => del(`/ledger/records/${id}`),
+  deleteRecord: (id) => requestDelete(`/ledger/records/${id}`),
 
   // 获取记录列表（按天分组）
   queryRecords: (data) => get('/ledger/records', data),
@@ -84,10 +89,45 @@ const mortgageApi = {
   calculate: (data) => post('/mortgage/calculate', data)
 };
 
+// 小区对比助手（无需登录）
+const communityApi = {
+  search: (keyword, city) => get(`/community/search?keyword=${encodeURIComponent(keyword || '')}&city=${encodeURIComponent(city || '')}`),
+  compare: (ids, city) => post('/community/compare', { ids, city })
+};
+
+// 我的衣柜
+const wardrobeApi = {
+  uploadItem: (filePath) => upload('/wardrobe/items/upload', filePath),
+  getOverview: () => get('/wardrobe/overview'),
+  getCategories: () => get('/wardrobe/categories'),
+  getItems: (recognizeStatus) => {
+    if (!recognizeStatus) {
+      return get('/wardrobe/items');
+    }
+    return get(`/wardrobe/items?recognizeStatus=${encodeURIComponent(recognizeStatus)}`);
+  },
+  getItemDetail: (id) => get(`/wardrobe/items/${id}`),
+  updateItem: (id, data) => put(`/wardrobe/items/${id}`, data),
+  deleteItem: (id) => requestDelete(`/wardrobe/items/${id}`),
+  getDailyOutfit: (targetDate) => get(targetDate ? `/outfits/daily?targetDate=${encodeURIComponent(targetDate)}` : '/outfits/daily'),
+  refreshDailyOutfit: (targetDate) => post(targetDate ? `/outfits/daily/refresh?targetDate=${encodeURIComponent(targetDate)}` : '/outfits/daily/refresh'),
+  adoptOutfit: (planId, data) => post(`/outfits/${planId}/adopt`, data || {}),
+  getOutfitRecords: () => get('/outfits/records')
+};
+
+function requestDelete(url) {
+  return request({
+    url,
+    method: 'DELETE'
+  });
+}
+
 module.exports = {
   quoteApi,
   authApi,
   toiletApi,
   ledgerApi,
-  mortgageApi
+  mortgageApi,
+  communityApi,
+  wardrobeApi
 };

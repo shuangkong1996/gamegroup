@@ -14,4 +14,6 @@ public class UserSettingsDTO {
     private Integer offWorkHour;
 
     private Integer offWorkMinute;
+
+    private String city;
 }

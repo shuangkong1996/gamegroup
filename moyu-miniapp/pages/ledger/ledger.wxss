@@ -45,6 +45,16 @@
   min-width: 200rpx;
 }
 
+.mode-switch {
+  display: flex;
+  gap: 18rpx;
+  align-items: center;
+}
+
+.mode-radio {
+  margin-right: 0;
+}
+
 .label {
   display: block;
   font-size: 26rpx;

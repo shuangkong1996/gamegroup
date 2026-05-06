@@ -3,10 +3,42 @@
   <view class="card header-card">
     <view class="toolbar-row">
       <view class="toolbar-item">
+        <text class="label">筛选方式</text>
+        <radio-group class="mode-switch" bindchange="onTimeFilterModeChange">
+          <label class="radio mode-radio">
+            <radio value="month" checked="{{timeFilterMode === 'month'}}" /> 月份
+          </label>
+          <label class="radio mode-radio">
+            <radio value="range" checked="{{timeFilterMode === 'range'}}" /> 自定义时间
+          </label>
+        </radio-group>
+      </view>
+    </view>
+
+    <view class="toolbar-row">
+      <view class="toolbar-item" wx:if="{{timeFilterMode === 'month'}}">
         <text class="label">月份</text>
-        <picker mode="date" value="{{monthPickValue}}" start="2000-01-01" end="2099-12-31" bindchange="onMonthPick">
+        <picker mode="date" fields="month" value="{{monthPickValue}}" start="2000-01-01" end="2099-12-31" bindchange="onMonthPick">
           <view class="picker-display">
             <text class="picker-text">{{month || '选择月份'}}</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="toolbar-item" wx:if="{{timeFilterMode === 'range'}}">
+        <text class="label">开始日期</text>
+        <picker mode="date" value="{{rangeStartDate}}" start="2000-01-01" end="2099-12-31" bindchange="onRangeStartDateChange">
+          <view class="picker-display">
+            <text class="picker-text">{{rangeStartDate || '选择开始日期'}}</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="toolbar-item" wx:if="{{timeFilterMode === 'range'}}">
+        <text class="label">结束日期</text>
+        <picker mode="date" value="{{rangeEndDate}}" start="2000-01-01" end="2099-12-31" bindchange="onRangeEndDateChange">
+          <view class="picker-display">
+            <text class="picker-text">{{rangeEndDate || '选择结束日期'}}</text>
           </view>
         </picker>
       </view>

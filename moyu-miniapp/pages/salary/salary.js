@@ -142,5 +142,18 @@ Page({
     const workHours = parseInt(e.detail.value) || 8;
     this.setData({ workHours });
     this.calculateRates();
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '工资计算器',
+      path: '/pages/salary/salary'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '工资计算器'
+    };
   }
 });

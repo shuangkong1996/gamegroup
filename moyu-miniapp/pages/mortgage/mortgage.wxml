@@ -5,6 +5,12 @@
     <text class="subtitle">商贷与公积金可组合，利率可改</text>
   </view>
 
+  <view class="card" wx:if="{{sourceCommunityName}}">
+    <text class="hint-label">来自小区对比助手</text>
+    <text class="hint-text">小区：{{sourceCommunityName}}</text>
+    <text class="hint-text" wx:if="{{sourceHouseTotal}}">参考总价：{{sourceHouseTotal}} 元</text>
+  </view>
+
   <view class="card" wx:if="{{referenceNote || providentFundRateNote}}">
     <text class="hint-label">默认利率说明</text>
     <text class="hint-text" wx:if="{{referencePeriod}}">参考周期：{{referencePeriod}}</text>

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS t_user (
     nickname VARCHAR(64),
     avatar_url VARCHAR(512),
     phone VARCHAR(20),
+    city VARCHAR(50),
     off_work_hour INT DEFAULT 18,
     off_work_minute INT DEFAULT 0,
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -229,6 +230,143 @@ CREATE TABLE IF NOT EXISTS t_ledger_recurring_rule (
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_rule_user_status (user_id, status),
     INDEX idx_rule_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Community table (MVP: manual maintained baseline dataset)
+CREATE TABLE IF NOT EXISTS t_community (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    city VARCHAR(40) NOT NULL,
+    district VARCHAR(40),
+    cover_image VARCHAR(512),
+    listing_avg_price DECIMAL(12,2),
+    price_change_pct_1y DECIMAL(8,2),
+    showing_count_recent INT,
+    onsale_count INT,
+    built_year INT,
+    developer VARCHAR(100),
+    property_company VARCHAR(100),
+    building_type VARCHAR(50),
+    plot_ratio DECIMAL(8,2),
+    greening_rate DECIMAL(8,2),
+    parking_ratio DECIMAL(8,2),
+    property_fee DECIMAL(10,2),
+    subway_distance_meters INT,
+    walk_to_rail_minutes INT,
+    primary_school VARCHAR(100),
+    middle_school VARCHAR(100),
+    status TINYINT NOT NULL DEFAULT 1,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_community_city_name (city, name),
+    INDEX idx_community_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Wardrobe item table
+CREATE TABLE IF NOT EXISTS t_wardrobe_item (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    image_url VARCHAR(512) NOT NULL,
+    image_file_name VARCHAR(255),
+    name VARCHAR(100),
+    category_level1 VARCHAR(30),
+    category_level2 VARCHAR(30),
+    color VARCHAR(30),
+    pattern_tags VARCHAR(255),
+    season_tags VARCHAR(100),
+    style_tags VARCHAR(255),
+    occasion_tags VARCHAR(255),
+    material VARCHAR(50),
+    thickness_level TINYINT,
+    warmth_level TINYINT,
+    waterproof_level TINYINT,
+    fit_type VARCHAR(30),
+    summary_text VARCHAR(500),
+    match_points VARCHAR(500),
+    avoid_points VARCHAR(500),
+    source VARCHAR(20) NOT NULL DEFAULT 'UPLOAD',
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    recognize_status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    recognize_error_msg VARCHAR(255),
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_wardrobe_user_status (user_id, status),
+    INDEX idx_wardrobe_user_category (user_id, category_level1),
+    INDEX idx_wardrobe_user_recognize (user_id, recognize_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Wardrobe item detail table
+CREATE TABLE IF NOT EXISTS t_wardrobe_item_detail (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    item_id BIGINT NOT NULL,
+    recognized_raw TEXT,
+    confidence_score DECIMAL(5,2),
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_wardrobe_item_detail_item (item_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Outfit plan table
+CREATE TABLE IF NOT EXISTS t_outfit_plan (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    target_date DATE NOT NULL,
+    weather_city VARCHAR(50),
+    weather_condition VARCHAR(50),
+    temperature_min INT,
+    temperature_max INT,
+    humidity INT,
+    comfort_tip VARCHAR(255),
+    plan_title VARCHAR(100),
+    plan_summary VARCHAR(500),
+    plan_reason VARCHAR(1000),
+    status VARCHAR(20) NOT NULL DEFAULT 'GENERATED',
+    source VARCHAR(20) NOT NULL DEFAULT 'SYSTEM',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_outfit_user_date (user_id, target_date),
+    INDEX idx_outfit_user_status (user_id, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Outfit plan item table
+CREATE TABLE IF NOT EXISTS t_outfit_plan_item (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    plan_id BIGINT NOT NULL,
+    wardrobe_item_id BIGINT NOT NULL,
+    item_role VARCHAR(20) NOT NULL,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_outfit_plan_item_plan (plan_id),
+    INDEX idx_outfit_plan_item_item (wardrobe_item_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Outfit record table
+CREATE TABLE IF NOT EXISTS t_outfit_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    plan_id BIGINT NOT NULL,
+    target_date DATE NOT NULL,
+    feedback VARCHAR(20),
+    user_note VARCHAR(255),
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_outfit_record_user_date (user_id, target_date),
+    UNIQUE KEY uk_outfit_record_user_plan (user_id, plan_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Weather snapshot table
+CREATE TABLE IF NOT EXISTS t_weather_snapshot (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    target_date DATE NOT NULL,
+    weather_condition VARCHAR(50),
+    temperature_min INT,
+    temperature_max INT,
+    humidity INT,
+    weather_json TEXT,
+    expire_time DATETIME NOT NULL,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_weather_snapshot_user_city_date (user_id, city, target_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert sample games

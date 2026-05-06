@@ -1,0 +1,60 @@
+<view class="container detail-page" wx:if="{{detail}}">
+  <image class="detail-image" src="{{detail.imageUrl}}" mode="aspectFill"></image>
+
+  <view class="status-card">
+    <text class="status-title">当前状态</text>
+    <text class="status-text status-{{detail.recognizeStatus}}">
+      {{detail.recognizeStatus === 'SUCCESS' ? '已整理完成' : detail.recognizeStatus === 'FAILED' ? '信息待补充，可手动完善' : '正在整理衣物信息'}}
+    </text>
+    <text wx:if="{{detail.recognizeErrorMsg}}" class="status-error">{{detail.recognizeErrorMsg}}</text>
+  </view>
+
+  <view class="form-card">
+    <view class="field">
+      <text class="field-label">名称</text>
+      <input class="field-input" value="{{form.name}}" data-field="name" bindinput="onFieldChange" placeholder="例如：白色短袖T恤" />
+    </view>
+    <view class="field two-col">
+      <view class="field-col">
+        <text class="field-label">一级分类</text>
+        <input class="field-input" value="{{form.categoryLevel1}}" data-field="categoryLevel1" bindinput="onFieldChange" placeholder="上装/下装/鞋子" />
+      </view>
+      <view class="field-col">
+        <text class="field-label">二级分类</text>
+        <input class="field-input" value="{{form.categoryLevel2}}" data-field="categoryLevel2" bindinput="onFieldChange" placeholder="T恤/牛仔裤" />
+      </view>
+    </view>
+    <view class="field two-col">
+      <view class="field-col">
+        <text class="field-label">颜色</text>
+        <input class="field-input" value="{{form.color}}" data-field="color" bindinput="onFieldChange" placeholder="白色" />
+      </view>
+      <view class="field-col">
+        <text class="field-label">季节</text>
+        <input class="field-input" value="{{form.seasonTags}}" data-field="seasonTags" bindinput="onFieldChange" placeholder="春夏" />
+      </view>
+    </view>
+    <view class="field">
+      <text class="field-label">风格</text>
+      <input class="field-input" value="{{form.styleTags}}" data-field="styleTags" bindinput="onFieldChange" placeholder="通勤,休闲" />
+    </view>
+    <view class="field">
+      <text class="field-label">场景</text>
+      <input class="field-input" value="{{form.occasionTags}}" data-field="occasionTags" bindinput="onFieldChange" placeholder="日常,通勤" />
+    </view>
+    <view class="field">
+      <text class="field-label">描述</text>
+      <textarea class="field-textarea" value="{{form.summaryText}}" data-field="summaryText" bindinput="onFieldChange" placeholder="补充这件衣物的特点"></textarea>
+    </view>
+    <view class="field">
+      <text class="field-label">搭配建议</text>
+      <textarea class="field-textarea" value="{{form.matchPoints}}" data-field="matchPoints" bindinput="onFieldChange" placeholder="适合和什么一起穿"></textarea>
+    </view>
+    <view class="field">
+      <text class="field-label">注意点</text>
+      <textarea class="field-textarea" value="{{form.avoidPoints}}" data-field="avoidPoints" bindinput="onFieldChange" placeholder="不适合的场景或天气"></textarea>
+    </view>
+  </view>
+
+  <button class="save-btn" bindtap="onSave" loading="{{saving}}">保存修改</button>
+</view>

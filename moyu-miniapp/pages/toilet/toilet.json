@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "厕所时间"
+  "navigationBarTitleText": "厕所时间",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true
 }

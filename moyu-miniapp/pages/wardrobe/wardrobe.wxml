@@ -1,0 +1,135 @@
+<view class="container wardrobe-page">
+  <view class="hero-card">
+    <view>
+      <text class="hero-title">我的衣柜</text>
+      <text class="hero-subtitle">上传衣物照片，整理信息，明天出门前来一套随机搭配</text>
+    </view>
+    <button class="upload-btn" bindtap="onChooseImage" loading="{{uploading}}">上传衣物</button>
+  </view>
+
+  <view class="stats-grid">
+    <view class="stat-card">
+      <text class="stat-value">{{overview.totalCount}}</text>
+      <text class="stat-label">总件数</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{overview.pendingCount}}</text>
+      <text class="stat-label">整理中</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{overview.successCount}}</text>
+      <text class="stat-label">已整理</text>
+    </view>
+  </view>
+
+  <view class="action-row">
+    <view class="action-card" bindtap="onOpenOutfit">
+      <text class="action-title">随机搭配</text>
+      <text class="action-desc">结合次日天气给你一套参考穿法</text>
+    </view>
+    <view class="action-card" bindtap="onOpenHistory">
+      <text class="action-title">搭配记录</text>
+      <text class="action-desc">看看你已经采纳过哪些组合</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">衣物整理</text>
+      <text class="section-tip">{{loading ? '加载中...' : ''}}</text>
+    </view>
+
+    <view class="view-switch">
+      <view
+        wx:for="{{viewOptions}}"
+        wx:key="value"
+        class="view-switch__item {{currentView === item.value ? 'view-switch__item--active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onViewTap">
+        {{item.label}}
+      </view>
+    </view>
+
+    <view wx:if="{{currentView === 'list'}}" class="filter-row">
+      <view
+        wx:for="{{filterOptions}}"
+        wx:key="value"
+        class="filter-chip {{currentFilter === item.value ? 'filter-chip--active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onFilterTap">
+        {{item.label}}
+      </view>
+    </view>
+
+    <view wx:if="{{currentView === 'list' && items.length}}" class="item-list">
+      <view class="item-card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenItem" bindlongpress="onLongPressItem">
+        <image class="item-image" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <view class="item-body">
+          <text class="item-name">{{item.name || '待整理衣物'}}</text>
+          <text class="item-meta">{{item.categoryLevel1 || '未分类'}} · {{item.color || '未知颜色'}}</text>
+          <text class="item-status status-{{item.recognizeStatus}}">{{item.recognizeStatus === 'SUCCESS' ? '已整理' : item.recognizeStatus === 'FAILED' ? '待补充' : '整理中'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{currentView === 'category' && activeCategory}}" class="category-view">
+      <view class="category-block">
+        <view class="category-block__header">
+          <text class="category-block__title">衣柜分区</text>
+          <text class="category-block__desc">先切换衣柜分区</text>
+        </view>
+        <scroll-view class="major-category-strip" scroll-x="true" show-scrollbar="false">
+          <view class="major-category-strip__inner">
+            <view
+              wx:for="{{categoryOverview.categories}}"
+              wx:key="name"
+              class="major-category-chip {{activeCategoryIndex === index ? 'major-category-chip--active' : ''}}"
+              data-index="{{index}}"
+              bindtap="onCategoryTap">
+              <text class="major-category-chip__name">{{item.name}}</text>
+              <text class="major-category-chip__count">{{item.count}}件</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view class="category-block">
+        <view class="category-block__header">
+          <text class="category-block__title">衣物标签</text>
+          <text class="category-block__desc">再按小类快速筛选</text>
+        </view>
+        <view class="filter-row filter-row--sub">
+          <view
+            wx:for="{{activeGroups}}"
+            wx:key="name"
+            class="filter-chip {{(item.isAll && !activeGroupName) || activeGroupName === item.name ? 'filter-chip--active' : ''}}"
+            data-name="{{item.isAll ? '' : item.name}}"
+            bindtap="onGroupTap">
+            {{item.name}} {{item.count}}
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{activeItems.length}}" class="item-grid">
+        <view class="grid-card" wx:for="{{activeItems}}" wx:key="id" data-id="{{item.id}}" bindtap="onOpenItem" bindlongpress="onLongPressItem">
+          <image class="grid-card__image" src="{{item.imageUrl}}" mode="aspectFill"></image>
+          <view class="grid-card__body">
+            <text class="grid-card__name">{{item.name || '待整理衣物'}}</text>
+            <text class="grid-card__meta">{{item.categoryLevel2 || activeCategory.name}} · {{item.color || '未知颜色'}}</text>
+            <text class="item-status status-{{item.recognizeStatus}}">{{item.recognizeStatus === 'SUCCESS' ? '已整理' : item.recognizeStatus === 'FAILED' ? '待补充' : '整理中'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="empty-card">
+        <text class="empty-title">这个分类下还没有衣物</text>
+        <text class="empty-desc">换个小类看看，或者先上传一件衣物</text>
+      </view>
+    </view>
+
+    <view wx:else class="empty-card">
+      <text class="empty-title">还没有衣物</text>
+      <text class="empty-desc">先上传一件衣物试试吧</text>
+    </view>
+  </view>
+</view>

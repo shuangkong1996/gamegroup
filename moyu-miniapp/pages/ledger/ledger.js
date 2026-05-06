@@ -3,12 +3,16 @@
 
 const { ledgerApi } = require('../../utils/api');
 const app = getApp();
+const LEDGER_FILTER_CACHE_KEY = 'ledgerFilterCacheV1';
 
 Page({
   data: {
     // 顶部筛选
+    timeFilterMode: 'month', // month | range
     month: '',
     monthPickValue: '',
+    rangeStartDate: '',
+    rangeEndDate: '',
     accounts: [],
     allCategories: [],
     expenseCategories: [],
@@ -103,11 +107,17 @@ Page({
   onLoad() {
     const now = new Date();
     const ym = `${now.getFullYear()}-${`${now.getMonth() + 1}`.padStart(2, '0')}`;
+    const firstDay = `${ym}-01`;
     const ymd = `${ym}-${`${now.getDate()}`.padStart(2, '0')}`;
+    const cachedFilter = this.loadFilterCache();
 
+    // 月份筛选默认始终为当月（不沿用本地缓存的历史月份）
     this.setData({
+      timeFilterMode: cachedFilter.timeFilterMode || 'month',
       month: ym,
-      monthPickValue: ymd,
+      monthPickValue: `${ym}-01`,
+      rangeStartDate: cachedFilter.rangeStartDate || firstDay,
+      rangeEndDate: cachedFilter.rangeEndDate || ymd,
       loading: true,
       modalScrollHeightPx: this.computeModalScrollHeightPx()
     });
@@ -167,17 +177,55 @@ Page({
 
   // 月份选择
   onMonthPick(e) {
-    const value = e.detail.value || '';
-    const month = value.slice(0, 7);
+    const month = e.detail.value || '';
     this.setData({
       month,
-      monthPickValue: value,
+      monthPickValue: `${month}-01`,
       page: 1,
       groupedRecords: [],
       total: 0,
       hasMore: false
     });
+    this.persistFilterCache();
+    this.refreshRecords();
+  },
 
+  onTimeFilterModeChange(e) {
+    const mode = e.detail.value === 'range' ? 'range' : 'month';
+    this.setData({
+      timeFilterMode: mode,
+      page: 1,
+      groupedRecords: [],
+      total: 0,
+      hasMore: false
+    });
+    this.persistFilterCache();
+    this.refreshRecords();
+  },
+
+  onRangeStartDateChange(e) {
+    const startDate = e.detail.value || '';
+    this.setData({
+      rangeStartDate: startDate,
+      page: 1,
+      groupedRecords: [],
+      total: 0,
+      hasMore: false
+    });
+    this.persistFilterCache();
+    this.refreshRecords();
+  },
+
+  onRangeEndDateChange(e) {
+    const endDate = e.detail.value || '';
+    this.setData({
+      rangeEndDate: endDate,
+      page: 1,
+      groupedRecords: [],
+      total: 0,
+      hasMore: false
+    });
+    this.persistFilterCache();
     this.refreshRecords();
   },
 
@@ -723,6 +771,8 @@ Page({
   },
 
   async refreshRecords() {
+    const timeParams = this.buildTimeQueryParams();
+    if (timeParams.timeInvalid) return;
     await this.loadRecords(false);
     await Promise.all([this.loadOverviewStats(), this.loadCategoryStats(), this.loadTrendStats()]);
   },
@@ -766,8 +816,7 @@ Page({
   },
 
   async loadOverviewStats() {
-    const month = this.data.month;
-    const overview = (await ledgerApi.getOverviewStats({ month })) || {};
+    const overview = (await ledgerApi.getOverviewStats(this.buildTimeQueryParams())) || {};
     this.setData({
       'overview.totalIncome': this.moneyToFixed2(overview.totalIncome),
       'overview.totalExpense': this.moneyToFixed2(overview.totalExpense),
@@ -776,8 +825,7 @@ Page({
   },
 
   async loadCategoryStats() {
-    const month = this.data.month;
-    const res = (await ledgerApi.getCategoryStats({ month })) || {};
+    const res = (await ledgerApi.getCategoryStats(this.buildTimeQueryParams())) || {};
     const expense = res.expense || [];
 
     const expenseCategoryStats = expense.map(item => {
@@ -795,8 +843,7 @@ Page({
   },
 
   async loadTrendStats() {
-    const month = this.data.month;
-    const points = (await ledgerApi.getTrendStats({ month })) || [];
+    const points = (await ledgerApi.getTrendStats(this.buildTimeQueryParams())) || [];
     const last7 = points.slice(-7);
 
     const maxValue = Math.max(...last7.map(p => Math.max(Number(p.income || 0), Number(p.expense || 0))));
@@ -819,12 +866,14 @@ Page({
   },
 
   async loadRecords(append) {
-    if (!this.data.month) return;
+    const timeParams = this.buildTimeQueryParams();
+    if (timeParams.timeInvalid) return;
 
     const page = this.data.page || 1;
     const size = this.data.size || 20;
 
-    const params = { month: this.data.month, page, size };
+    const params = { ...timeParams, page, size };
+    delete params.timeInvalid;
     if (this.data.selectedAccountId != null) params.accountId = this.data.selectedAccountId;
     if (this.data.selectedCategoryId != null) params.categoryId = this.data.selectedCategoryId;
 
@@ -855,6 +904,52 @@ Page({
     const total = res.total || 0;
     const hasMore = page * size < total;
     this.setData({ hasMore });
+  },
+
+  buildTimeQueryParams() {
+    const mode = this.data.timeFilterMode === 'range' ? 'range' : 'month';
+    if (mode === 'range') {
+      const startDate = this.data.rangeStartDate;
+      const endDate = this.data.rangeEndDate;
+      if (!startDate || !endDate) {
+        return { timeInvalid: true };
+      }
+      if (startDate > endDate) {
+        wx.showToast({ title: '开始日期不能晚于结束日期', icon: 'none' });
+        return { timeInvalid: true };
+      }
+      return { startDate, endDate };
+    }
+    if (!this.data.month) {
+      return { timeInvalid: true };
+    }
+    return { month: this.data.month };
+  },
+
+  persistFilterCache() {
+    try {
+      wx.setStorageSync(LEDGER_FILTER_CACHE_KEY, {
+        timeFilterMode: this.data.timeFilterMode,
+        rangeStartDate: this.data.rangeStartDate,
+        rangeEndDate: this.data.rangeEndDate
+      });
+    } catch (err) {
+      console.warn('缓存记账筛选条件失败', err);
+    }
+  },
+
+  loadFilterCache() {
+    try {
+      const cache = wx.getStorageSync(LEDGER_FILTER_CACHE_KEY) || {};
+      return {
+        timeFilterMode: cache.timeFilterMode === 'range' ? 'range' : 'month',
+        rangeStartDate: typeof cache.rangeStartDate === 'string' ? cache.rangeStartDate : '',
+        rangeEndDate: typeof cache.rangeEndDate === 'string' ? cache.rangeEndDate : ''
+      };
+    } catch (err) {
+      console.warn('读取记账筛选缓存失败', err);
+      return {};
+    }
   },
 
   // ---- 工具函数 ----
@@ -966,6 +1061,19 @@ Page({
       }
     }
     return cells;
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '记账台账',
+      path: '/pages/ledger/ledger'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '记账台账'
+    };
   }
 });
 

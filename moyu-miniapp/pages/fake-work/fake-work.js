@@ -120,5 +120,18 @@ Page({
     }, 500);
 
     this.setData({ timer });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '假装工作',
+      path: '/pages/fake-work/fake-work'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '假装工作'
+    };
   }
 });
