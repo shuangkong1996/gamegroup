@@ -1,11 +1,13 @@
 <view class="container history-page">
   <view wx:if="{{records.length}}" class="record-list">
-    <view class="record-card" wx:for="{{records}}" wx:key="id">
+    <view class="record-card" wx:for="{{records}}" wx:key="id" data-render-task-id="{{item.renderTaskId}}" bindtap="onOpenRecord">
       <text class="record-date">{{item.targetDate}}</text>
       <text class="record-title">{{item.planTitle || '日常搭配记录'}}</text>
       <text class="record-summary">{{item.planSummary || '已采纳一套参考搭配'}}</text>
-      <text class="record-meta">{{item.weatherCondition || '天气待定'}} · {{item.temperatureMin}}~{{item.temperatureMax}}°C</text>
+      <text class="record-meta">{{item.weatherCondition || '天气待定'}}{{item.temperatureMin !== null && item.temperatureMin !== undefined ? ' · ' + item.temperatureMin + '~' + item.temperatureMax + '°C' : ''}}</text>
       <text class="record-meta">采纳时间：{{item.createTime}}</text>
+      <image wx:if="{{item.referenceImageUrl}}" class="record-image" src="{{item.referenceImageUrl}}" mode="aspectFill"></image>
+      <text class="record-link">{{item.renderTaskId ? '点击查看详情' : '普通搭配记录'}}</text>
     </view>
   </view>
 

@@ -10,11 +10,11 @@ Page({
         color: '#ffd93d'
       },
       {
-        id: 'toilet',
-        name: '厕所时间',
-        desc: '带薪拉屎计算器',
-        emoji: '🚽',
-        color: '#4ade80'
+        id: 'mahjong-helper',
+        name: '麻将胡牌提示',
+        desc: '拍一张手牌图看看当前胡牌情况',
+        emoji: '🀄',
+        color: '#f59e0b'
       },
       {
         id: 'wardrobe',
@@ -38,11 +38,11 @@ Page({
         color: '#f472b6'
       },
       {
-        id: 'community-compare',
-        name: '小区对比助手',
-        desc: '搜索对比并联动房贷',
-        emoji: '🏘️',
-        color: '#22d3ee'
+        id: 'toilet',
+        name: '厕所时间',
+        desc: '带薪拉屎计算器',
+        emoji: '🚽',
+        color: '#4ade80'
       }
     ]
   },

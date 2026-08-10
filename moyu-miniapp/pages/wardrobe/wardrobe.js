@@ -117,6 +117,12 @@ Page({
     });
   },
 
+  onOpenProfile() {
+    wx.navigateTo({
+      url: '/pages/user-profile/user-profile'
+    });
+  },
+
   onFilterTap(e) {
     const value = e.currentTarget.dataset.value;
     this.setData({ currentFilter: value || '' });

@@ -1,0 +1,3 @@
+Mahjong tile images derived from perthmahjongsoc/mahjong-tiles-svg (Wikimedia Cangjie6 et al.), CC BY-SA 4.0.
+Source: https://github.com/perthmahjongsoc/mahjong-tiles-svg
+Converted to PNG for WeChat mini program display.

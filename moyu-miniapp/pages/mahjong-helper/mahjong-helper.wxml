@@ -1,0 +1,219 @@
+<view class="container mahjong-page">
+  <view class="hero-card">
+    <view class="hero-copy">
+      <text class="hero-title">麻将胡牌提示</text>
+      <text class="hero-subtitle">拍照识牌后可全屏改牌；听牌/胡牌始终由规则引擎计算</text>
+    </view>
+    <button class="hero-btn" bindtap="onChoosePhoto" loading="{{analyzing}}" disabled="{{recalculating || editorVisible}}">上传照片</button>
+    <button class="hero-btn hero-btn--ghost" bindtap="onStartManualInput" disabled="{{analyzing || recalculating || editorVisible}}">手动录入手牌</button>
+  </view>
+
+  <view class="shoot-card">
+    <view class="section-head">
+      <text class="section-title">使用建议</text>
+      <text class="section-tag">可纠错</text>
+    </view>
+    <view class="tip-list">
+      <view class="tip-item" wx:for="{{tips}}" wx:key="*this">
+        <text class="tip-dot"></text>
+        <text class="tip-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="photo-card">
+    <view class="section-head">
+      <text class="section-title">当前照片</text>
+      <text class="section-tag">可点开预览</text>
+    </view>
+
+    <view wx:if="{{imageUrl}}" class="photo-preview" bindtap="onPreviewImage">
+      <image class="photo-image" src="{{imageUrl}}" mode="aspectFill"></image>
+      <view class="photo-mask">
+        <text class="photo-mask__text">点按查看大图</text>
+      </view>
+    </view>
+
+    <view wx:else class="photo-empty">
+      <text class="photo-empty__emoji">🀄</text>
+      <text class="photo-empty__title">还没有照片</text>
+      <text class="photo-empty__desc">可上传手牌照片，也可直接全屏手动录入</text>
+    </view>
+  </view>
+
+  <view class="result-stack" wx:if="{{result || editableTiles.length}}">
+    <view wx:if="{{result}}" class="result-card result-card--main {{result.alreadyWinning ? 'result-card--win' : (result.handValid ? 'result-card--wait' : 'result-card--invalid')}}">
+      <view class="result-top">
+        <view>
+          <text class="result-label">当前结论</text>
+          <text class="result-title">
+            {{result.alreadyWinning ? '胡了哦！' : (result.handValid ? (result.winningTiles.length ? '当前听牌' : '当前未听牌') : '手牌待确认')}}
+          </text>
+        </view>
+        <text class="confidence-pill">把握度 {{result.confidenceLabel || '中'}}</text>
+      </view>
+      <view wx:if="{{result.alreadyWinning}}" class="win-banner">
+        <text class="win-banner__emoji">🀄</text>
+        <view class="win-banner__copy">
+          <text class="win-banner__title">胡了哦</text>
+          <text class="win-banner__desc">{{result.handForm ? ('牌型：' + result.handForm) : '当前手牌已构成胡牌'}}</text>
+        </view>
+      </view>
+      <text class="result-summary">{{result.handSummary}}</text>
+      <text class="result-suggestion">{{result.suggestion}}</text>
+      <text wx:if="{{result.handForm}}" class="result-meta">牌型：{{result.handForm}}</text>
+      <text class="result-meta">张数：{{result.tileCount || 0}}　分析：规则引擎</text>
+    </view>
+
+    <view class="result-card">
+      <view class="section-head">
+        <text class="section-title">当前手牌</text>
+        <text class="section-tag">{{editableTiles.length}} 张</text>
+      </view>
+      <text class="edit-hint">排序：筒 → 条 → 万 → 字。已碰/杠可不录副露，只录剩余手牌即可。</text>
+
+      <view wx:if="{{editableTileItems.length}}" class="tile-list tile-list--icons">
+        <view class="tile-face tile-face--hand" wx:for="{{editableTileItems}}" wx:key="key">
+          <image wx:if="{{item.icon}}" class="tile-face__img" src="{{item.icon}}" mode="aspectFit"></image>
+          <text wx:else class="tile-face__fallback">{{item.name}}</text>
+        </view>
+      </view>
+      <view wx:else class="inline-empty">还没有手牌，可手动录入或重新拍照。</view>
+
+      <view class="edit-actions">
+        <button class="edit-btn edit-btn--primary" bindtap="onOpenEditor" disabled="{{analyzing || recalculating}}">编辑手牌</button>
+        <button
+          class="edit-btn"
+          bindtap="onRecalculate"
+          loading="{{recalculating}}"
+          disabled="{{analyzing || recalculating || !canRecalculate}}"
+        >直接重算</button>
+      </view>
+
+      <view wx:if="{{result && !result.handValid}}" class="inline-warning">当前张数不在可计算范围，或手牌异常。无副露用 13/14；已碰杠可只录剩余手牌（10/11、7/8…）。</view>
+    </view>
+
+    <view class="result-card" wx:if="{{result && result.handValid && !result.alreadyWinning}}">
+      <view class="section-head">
+        <text class="section-title">可胡牌张</text>
+        <text class="section-tag">规则计算</text>
+      </view>
+      <view wx:if="{{winningTileItems.length}}" class="tile-list tile-list--icons">
+        <view class="tile-face tile-face--win" wx:for="{{winningTileItems}}" wx:key="key">
+          <image wx:if="{{item.icon}}" class="tile-face__img" src="{{item.icon}}" mode="aspectFit"></image>
+          <text wx:else class="tile-face__fallback">{{item.name}}</text>
+          <text class="tile-face__caption">{{item.name}}</text>
+        </view>
+      </view>
+      <view wx:else class="inline-empty">按当前手牌计算，暂未形成听牌。</view>
+    </view>
+  </view>
+
+  <view class="history-card">
+    <view class="section-head">
+      <text class="section-title">最近记录</text>
+      <text wx:if="{{history.length}}" class="history-clear" bindtap="onClearHistory">清空</text>
+      <text wx:else class="section-tag">自动保留最近 8 条</text>
+    </view>
+
+    <view wx:if="{{history.length}}" class="history-list">
+      <view class="history-item" wx:for="{{history}}" wx:key="index" data-index="{{index}}" bindtap="onLoadHistoryItem">
+        <image wx:if="{{item.imageUrl}}" class="history-thumb" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <view wx:else class="history-thumb history-thumb--empty">手牌</view>
+        <view class="history-body">
+          <view class="history-row">
+            <text class="history-title">{{item.result && item.result.alreadyWinning ? '胡了哦' : (item.result && item.result.winningTiles && item.result.winningTiles.length ? '听牌' : '胡牌提示')}}</text>
+            <text class="history-time">{{item.createTimeText}}</text>
+          </view>
+          <text class="history-summary">{{item.result && item.result.handSummary ? item.result.handSummary : '点击查看这次结果'}}</text>
+          <text class="history-meta">{{item.result && item.result.alreadyWinning ? '当前判断：胡了哦' : (item.result && item.result.winningTiles && item.result.winningTiles.length ? '可胡：' + item.result.winningTiles.join('、') : '可继续编辑手牌后重算')}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:else class="inline-empty">上传或手动录入后，最近记录会显示在这里。</view>
+  </view>
+
+  <view class="credit-note">牌面素材基于 Wikimedia / Cangjie6 等作品（CC BY-SA 4.0）转换</view>
+</view>
+
+<!-- 全屏手牌录入 -->
+<view class="hand-editor" wx:if="{{editorVisible}}">
+  <view class="hand-editor__nav">
+    <text class="hand-editor__back" bindtap="onCloseEditor">关闭</text>
+    <text class="hand-editor__title">手牌录入</text>
+    <text class="hand-editor__count">{{editorCountText}}</text>
+  </view>
+
+  <view class="hand-editor__body">
+    <view class="hand-panel hand-panel--top">
+      <view class="section-head">
+        <text class="section-title">当前手牌</text>
+        <text class="hand-panel__action" bindtap="onClearEditorTiles">清空</text>
+      </view>
+      <text class="edit-hint">点上面删牌；已碰杠可不录副露。听：1/4/7/10/13，胡：2/5/8/11/14</text>
+
+      <view wx:if="{{editorTileItems.length}}" class="hand-board">
+        <view
+          class="hand-tile"
+          wx:for="{{editorTileItems}}"
+          wx:key="key"
+          data-index="{{item.index}}"
+          bindtap="onRemoveEditorTile"
+        >
+          <image wx:if="{{item.icon}}" class="hand-tile__img" src="{{item.icon}}" mode="aspectFit"></image>
+          <text wx:else class="hand-tile__text">{{item.name}}</text>
+          <text class="hand-tile__remove">点删</text>
+        </view>
+      </view>
+      <view wx:else class="hand-board hand-board--empty">
+        <text class="inline-empty">还没有牌，点下方牌面开始添加</text>
+      </view>
+
+      <text class="editor-status">{{editorStatusText}}</text>
+    </view>
+
+    <view class="hand-panel hand-panel--bottom">
+      <view class="section-head">
+        <text class="section-title">选牌区</text>
+        <text class="section-tag">点一下加一张</text>
+      </view>
+
+      <view class="suit-tabs">
+        <view
+          class="suit-tab {{activeSuitIndex === index ? 'suit-tab--active' : ''}}"
+          wx:for="{{tileGroups}}"
+          wx:key="key"
+          data-index="{{index}}"
+          bindtap="onSwitchSuit"
+        >{{item.name}}</view>
+      </view>
+
+      <view class="palette-grid">
+        <view
+          class="palette-btn {{item.disabled ? 'palette-btn--disabled' : ''}}"
+          wx:for="{{activePalette}}"
+          wx:key="name"
+          data-tile="{{item.name}}"
+          data-disabled="{{item.disabled}}"
+          bindtap="onAddEditorTile"
+        >
+          <image wx:if="{{item.icon}}" class="palette-btn__img" src="{{item.icon}}" mode="aspectFit"></image>
+          <text wx:else class="palette-btn__label">{{item.label}}</text>
+          <text class="palette-btn__name">{{item.name}}</text>
+          <text wx:if="{{item.badge}}" class="palette-btn__badge">{{item.badge}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="hand-editor__footer">
+    <button class="edit-btn" bindtap="onCloseEditor" disabled="{{recalculating}}">取消</button>
+    <button
+      class="edit-btn edit-btn--primary"
+      bindtap="onConfirmEditor"
+      loading="{{recalculating}}"
+      disabled="{{recalculating || editorCount === 0}}"
+    >完成并计算</button>
+  </view>
+</view>

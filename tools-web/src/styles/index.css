@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: 248 250 252;
+  --surface: 255 255 255;
+  --ink: 15 23 42;
+  --muted: 100 116 139;
+  --line: 226 232 240;
+  color-scheme: light;
+}
+
+.dark {
+  --canvas: 3 7 18;
+  --surface: 24 24 27;
+  --ink: 244 244 245;
+  --muted: 161 161 170;
+  --line: 39 39 42;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    @apply h-full scroll-smooth bg-canvas text-ink antialiased;
+  }
+
+  body,
+  #app {
+    @apply min-h-full;
+  }
+
+  body {
+    @apply m-0 font-sans text-[15px] leading-7 tracking-tight;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgb(99 102 241 / 0.08), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgb(16 185 129 / 0.05), transparent);
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgb(99 102 241 / 0.14), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgb(16 185 129 / 0.06), transparent);
+  }
+
+  * {
+    @apply border-line;
+  }
+
+  ::selection {
+    @apply bg-brand-500/20 text-ink;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    @apply font-sans outline-none;
+  }
+
+  input[type='search']::-webkit-search-cancel-button {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  .glass-header {
+    @apply sticky top-0 z-40 border-b border-line/60 bg-white/80 backdrop-blur-md dark:bg-zinc-950/80;
+  }
+
+  .panel {
+    @apply rounded-2xl border border-line/70 bg-surface/95 shadow-ambient transition-shadow duration-300 ease-in-out dark:bg-zinc-900/80;
+  }
+
+  .field {
+    @apply w-full rounded-lg border border-line/80 bg-white px-4 py-3 text-sm text-slate-900 transition-all duration-300 ease-in-out placeholder:text-slate-400 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/10 dark:bg-zinc-950/70 dark:text-zinc-100 dark:placeholder:text-zinc-500;
+  }
+
+  select.field {
+    @apply cursor-pointer appearance-none bg-[length:1rem] bg-[position:right_0.85rem_center] bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2494a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+
+  .dark select.field {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+
+  .code-field {
+    @apply field min-h-[260px] resize-y font-mono text-[13px] leading-7;
+  }
+
+  .primary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-brand-600 to-violet-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-indigo-500/10 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0;
+  }
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line/80 bg-slate-100/80 px-4 py-2.5 text-sm font-medium text-slate-700 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-brand-500/30 hover:bg-white active:translate-y-0 dark:bg-zinc-800/80 dark:text-zinc-200 dark:hover:bg-zinc-800;
+  }
+
+  .icon-button {
+    @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-line/70 bg-white/80 text-slate-600 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-brand-500/30 hover:text-brand-600 active:translate-y-0 dark:bg-zinc-900/80 dark:text-zinc-300;
+  }
+
+  .check-label {
+    @apply inline-flex cursor-pointer items-center gap-2.5 text-sm text-muted transition-colors duration-200 hover:text-ink;
+  }
+
+  .check-label input[type='checkbox'] {
+    @apply h-4 w-4 shrink-0 cursor-pointer appearance-none rounded border border-line/80 bg-white transition-all duration-200 checked:border-brand-600 checked:bg-brand-600 focus-visible:ring-2 focus-visible:ring-brand-500/20 dark:bg-zinc-950;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 0.7rem;
+  }
+
+  .check-label input[type='checkbox']:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3.5 8.5 6.5 11.5 12.5 4.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  .page-enter {
+    @apply animate-fade-up;
+  }
+
+  .empty-state {
+    @apply rounded-2xl border border-dashed border-line/80 p-10 text-center text-sm text-muted;
+  }
+}

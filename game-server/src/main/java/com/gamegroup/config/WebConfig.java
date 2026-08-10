@@ -38,7 +38,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/articles", // 允许未登录查看文章列表
                         "/articles/*", // 允许未登录查看文章详情
                         "/mortgage/**", // 房贷计算器（纯计算，无需登录）
-                        "/community/**" // 小区对比助手（公共工具）
+                        "/community/**", // 小区对比助手（公共工具）
+                        "/resume/pdf" // 简历 PDF（内容由客户端提交，无需登录）
                 );
     }
 }

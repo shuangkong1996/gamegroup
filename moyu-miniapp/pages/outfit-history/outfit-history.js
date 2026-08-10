@@ -24,5 +24,16 @@ Page({
     } finally {
       this.setData({ loading: false });
     }
+  },
+
+  onOpenRecord(e) {
+    const renderTaskId = e.currentTarget.dataset.renderTaskId;
+    if (!renderTaskId) {
+      wx.showToast({ title: '该记录暂不支持详情', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({
+      url: `/pages/outfit/outfit?taskId=${renderTaskId}&readonly=1`
+    });
   }
 });

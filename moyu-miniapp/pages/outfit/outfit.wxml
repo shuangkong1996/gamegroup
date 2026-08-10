@@ -1,4 +1,4 @@
-<view class="container outfit-page" wx:if="{{outfit}}">
+<view class="container outfit-page">
   <view class="city-card">
     <text class="city-title">天气城市</text>
     <view class="city-row">
@@ -7,31 +7,80 @@
     </view>
   </view>
 
-  <view class="weather-card">
-    <text class="weather-city">{{outfit.weatherCity}}</text>
-    <text class="weather-main">{{outfit.weatherCondition}} {{outfit.temperatureMin}}~{{outfit.temperatureMax}}°C</text>
-    <text class="weather-sub">湿度 {{outfit.humidity}}%</text>
+  <view class="plan-card control-card">
+    <view wx:if="{{readonly}}" class="readonly-tip">当前为已采纳记录详情，可查看参考方案与出图结果。</view>
+    <text class="plan-title">参考模式</text>
+    <view class="mode-row">
+      <view
+        wx:for="{{modeOptions}}"
+        wx:key="value"
+        class="mode-chip {{selectedMode === item.value ? 'mode-chip--active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onModeTap">
+        {{item.label}}
+      </view>
+    </view>
+
+    <text class="plan-title plan-title--sub">使用场景</text>
+    <view class="mode-row mode-row--wrap">
+      <view
+        wx:for="{{sceneOptions}}"
+        wx:key="*this"
+        class="mode-chip {{selectedScene === item ? 'mode-chip--active' : ''}}"
+        data-value="{{item}}"
+        bindtap="onSceneTap">
+        {{item}}
+      </view>
+    </view>
+
+    <button wx:if="{{!readonly}}" class="primary-btn generate-btn" bindtap="onGenerate" loading="{{generating}}">生成参考方案</button>
   </view>
 
-  <view class="plan-card">
-    <text class="plan-title">{{outfit.planTitle}}</text>
-    <text class="plan-summary">{{outfit.planSummary}}</text>
-    <text class="plan-reason">{{outfit.planReason}}</text>
-    <text class="plan-tip">{{outfit.comfortTip}}</text>
+  <view wx:if="{{latestTask}}" class="weather-card">
+    <text class="weather-city">{{latestTask.weatherCity}}</text>
+    <text class="weather-main">{{latestTask.weatherCondition}} {{latestTask.temperatureMin}}~{{latestTask.temperatureMax}}°C</text>
+    <text class="weather-sub">湿度 {{latestTask.humidity}}% · {{latestTask.sceneRequirement}} · {{latestTask.status === 'RENDERING' ? '参考图生成中' : latestTask.status === 'SUCCESS' ? '已出图' : latestTask.status === 'FAILED' ? '生成失败' : '方案整理中'}}</text>
+    <button wx:if="{{latestTask.status === 'PLANNING' || latestTask.status === 'QUEUED' || latestTask.status === 'RENDERING'}}" class="secondary-btn refresh-btn" bindtap="onRefreshTask" loading="{{refreshingTask}}">{{latestTask.status === 'PLANNING' ? '刷新整理进度' : latestTask.status === 'QUEUED' ? '刷新排队进度' : '刷新出图状态'}}</button>
   </view>
 
-  <view class="items-card">
-    <view class="outfit-item" wx:for="{{outfit.items}}" wx:key="itemId">
-      <image class="outfit-image" src="{{item.imageUrl}}" mode="aspectFill"></image>
+  <view wx:if="{{latestTask}}" class="plan-card">
+    <text class="plan-title">{{latestTask.planTitle}}</text>
+    <text class="plan-summary">{{latestTask.planSummary}}</text>
+    <text class="plan-reason">{{latestTask.planReason}}</text>
+    <text class="plan-tip">{{latestTask.comfortTip}}</text>
+    <text class="plan-tip">风格关键词：{{latestTask.styleKeywords || '待整理'}}</text>
+    <text class="plan-tip">点击上方“生成参考方案”后，会先分析你的形象资料和穿搭方向，再自动继续生成一张新的参考图。</text>
+    <button wx:if="{{latestTask.status === 'PLANNING' || latestTask.status === 'QUEUED' || latestTask.status === 'RENDERING'}}" class="secondary-btn refresh-btn" bindtap="onRefreshTask" loading="{{refreshingTask}}">{{latestTask.status === 'PLANNING' ? '刷新整理进度' : latestTask.status === 'QUEUED' ? '刷新排队进度' : '刷新出图状态'}}</button>
+  </view>
+
+  <view wx:if="{{latestTask && latestTask.resultImageUrl}}" class="items-card">
+    <text class="plan-title">参考图</text>
+    <image class="render-image" src="{{latestTask.resultImageUrl}}" mode="widthFix"></image>
+    <view class="actions">
+      <button class="secondary-btn" bindtap="onRefreshTask">刷新状态</button>
+      <button wx:if="{{!readonly}}" class="primary-btn" bindtap="onAdopt" loading="{{adopting}}">采纳这套</button>
+    </view>
+  </view>
+
+  <view wx:if="{{latestTask && latestTask.items && latestTask.items.length}}" class="items-card">
+    <view class="outfit-item" wx:for="{{latestTask.items}}" wx:key="index">
+      <image wx:if="{{item.imageUrl}}" class="outfit-image" src="{{item.imageUrl}}" mode="aspectFill"></image>
+      <view wx:else class="outfit-image outfit-image--placeholder">建议</view>
       <view class="outfit-meta">
         <text class="outfit-name">{{item.name}}</text>
-        <text class="outfit-role">{{item.itemRole}} · {{item.categoryLevel1 || '未分类'}} · {{item.color || '未知颜色'}}</text>
+        <text class="outfit-role">{{item.itemRole}} · {{item.categoryLevel1 || item.sourceType || '建议单品'}}{{item.color ? ' · ' + item.color : ''}}</text>
+        <text wx:if="{{item.summaryText}}" class="outfit-role">{{item.summaryText}}</text>
       </view>
     </view>
   </view>
 
-  <view class="actions">
-    <button class="secondary-btn" bindtap="onRefresh" loading="{{refreshing}}">换一组</button>
-    <button class="primary-btn" bindtap="onAdopt">采纳这套</button>
+  <view wx:elif="{{latestTask && latestTask.status === 'FAILED'}}" class="plan-card">
+    <text class="plan-title">生成失败</text>
+    <text class="plan-summary">{{latestTask.errorMessage || '请稍后再试'}}</text>
+  </view>
+
+  <view wx:elif="{{!loading}}" class="plan-card empty-card">
+    <text class="plan-title">还没有参考方案</text>
+    <text class="plan-summary">先选择模式和场景，生成一版试试。</text>
   </view>
 </view>

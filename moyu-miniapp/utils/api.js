@@ -26,7 +26,17 @@ const authApi = {
       return put('/auth/settings', offWorkHour);
     }
     return put('/auth/settings', { offWorkHour, offWorkMinute, city });
-  }
+  },
+
+  // 获取用户形象资料
+  getProfile: () => get('/auth/profile'),
+
+  // 更新用户形象资料
+  updateProfile: (data) => put('/auth/profile', data)
+};
+
+const fileApi = {
+  uploadImage: (filePath) => upload('/v1/file/upload', filePath)
 };
 
 // 厕所时间相关
@@ -115,6 +125,19 @@ const wardrobeApi = {
   getOutfitRecords: () => get('/outfits/records')
 };
 
+const outfitRenderApi = {
+  createTask: (data) => post('/outfit-renders/tasks', data),
+  getTasks: () => get('/outfit-renders/tasks'),
+  getLatestTask: () => get('/outfit-renders/tasks/latest'),
+  getTask: (taskId) => get(`/outfit-renders/tasks/${taskId}`),
+  adoptTask: (taskId, data) => post(`/outfit-renders/tasks/${taskId}/adopt`, data || {})
+};
+
+const mahjongApi = {
+  analyzePhoto: (filePath) => upload('/mahjong/advice', filePath),
+  analyzeTiles: (tiles) => post('/mahjong/analyze-tiles', { tiles })
+};
+
 function requestDelete(url) {
   return request({
     url,
@@ -125,9 +148,12 @@ function requestDelete(url) {
 module.exports = {
   quoteApi,
   authApi,
+  fileApi,
   toiletApi,
   ledgerApi,
   mortgageApi,
   communityApi,
-  wardrobeApi
+  wardrobeApi,
+  outfitRenderApi,
+  mahjongApi
 };

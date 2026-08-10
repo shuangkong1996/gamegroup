@@ -8,7 +8,9 @@
     "pages/ledger/ledger",
     "pages/mortgage/mortgage",
     "pages/community-compare/community-compare",
+    "pages/mahjong-helper/mahjong-helper",
     "pages/wardrobe/wardrobe",
+    "pages/user-profile/user-profile",
     "pages/wardrobe-item/wardrobe-item",
     "pages/outfit/outfit",
     "pages/outfit-history/outfit-history"

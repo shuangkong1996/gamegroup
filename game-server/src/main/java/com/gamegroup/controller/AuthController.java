@@ -61,4 +61,20 @@ public class AuthController {
         UserSettingsDTO settings = authService.updateUserSettings(userId, request);
         return ApiResponse.success(settings);
     }
+
+    @Operation(summary = "获取用户形象资料")
+    @GetMapping("/profile")
+    public ApiResponse<UserProfileDTO> getUserProfile(@RequestAttribute("userId") Long userId) {
+        UserProfileDTO profile = authService.getUserProfile(userId);
+        return ApiResponse.success(profile);
+    }
+
+    @Operation(summary = "更新用户形象资料")
+    @PutMapping("/profile")
+    public ApiResponse<UserProfileDTO> updateUserProfile(
+            @Valid @RequestBody UpdateUserProfileRequest request,
+            @RequestAttribute("userId") Long userId) {
+        UserProfileDTO profile = authService.updateUserProfile(userId, request);
+        return ApiResponse.success(profile);
+    }
 }

@@ -10,10 +10,12 @@ import com.gamegroup.dto.WeatherSnapshotDTO;
 import com.gamegroup.entity.OutfitPlan;
 import com.gamegroup.entity.OutfitPlanItem;
 import com.gamegroup.entity.OutfitRecord;
+import com.gamegroup.entity.OutfitRenderTask;
 import com.gamegroup.entity.WardrobeItem;
 import com.gamegroup.repository.OutfitPlanItemRepository;
 import com.gamegroup.repository.OutfitPlanRepository;
 import com.gamegroup.repository.OutfitRecordRepository;
+import com.gamegroup.repository.OutfitRenderTaskRepository;
 import com.gamegroup.repository.WardrobeItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class OutfitService {
     private final OutfitPlanRepository outfitPlanRepository;
     private final OutfitPlanItemRepository outfitPlanItemRepository;
     private final OutfitRecordRepository outfitRecordRepository;
+    private final OutfitRenderTaskRepository outfitRenderTaskRepository;
     private final WardrobeItemRepository wardrobeItemRepository;
     private final WeatherService weatherService;
 
@@ -84,20 +87,30 @@ public class OutfitService {
     public List<OutfitRecordDTO> getRecords(Long userId) {
         Map<Long, OutfitPlan> planMap = outfitPlanRepository.findByUserIdOrderByTargetDateDescIdDesc(userId).stream()
                 .collect(Collectors.toMap(OutfitPlan::getId, Function.identity(), (left, right) -> left));
+        Map<Long, OutfitRenderTask> renderTaskMap = outfitRenderTaskRepository.findTop10ByUserIdOrderByIdDesc(userId).stream()
+                .collect(Collectors.toMap(OutfitRenderTask::getId, Function.identity(), (left, right) -> left));
 
         return outfitRecordRepository.findByUserIdOrderByTargetDateDescIdDesc(userId).stream()
                 .map(record -> {
                     OutfitPlan plan = planMap.get(record.getPlanId());
+                    OutfitRenderTask renderTask = record.getRenderTaskId() == null ? null : renderTaskMap.get(record.getRenderTaskId());
+                    String planTitle = renderTask != null ? renderTask.getPlanTitle() : (plan == null ? null : plan.getPlanTitle());
+                    String planSummary = renderTask != null ? renderTask.getPlanSummary() : (plan == null ? null : plan.getPlanSummary());
+                    String weatherCondition = renderTask != null ? renderTask.getWeatherCondition() : (plan == null ? null : plan.getWeatherCondition());
+                    Integer temperatureMin = renderTask != null ? renderTask.getTemperatureMin() : (plan == null ? null : plan.getTemperatureMin());
+                    Integer temperatureMax = renderTask != null ? renderTask.getTemperatureMax() : (plan == null ? null : plan.getTemperatureMax());
                     return OutfitRecordDTO.builder()
                             .id(record.getId())
                             .planId(record.getPlanId())
+                            .renderTaskId(record.getRenderTaskId())
                             .targetDate(record.getTargetDate().format(DATE_FORMATTER))
-                            .planTitle(plan == null ? null : plan.getPlanTitle())
-                            .planSummary(plan == null ? null : plan.getPlanSummary())
-                            .weatherCondition(plan == null ? null : plan.getWeatherCondition())
-                            .temperatureMin(plan == null ? null : plan.getTemperatureMin())
-                            .temperatureMax(plan == null ? null : plan.getTemperatureMax())
+                            .planTitle(planTitle)
+                            .planSummary(planSummary)
+                            .weatherCondition(weatherCondition)
+                            .temperatureMin(temperatureMin)
+                            .temperatureMax(temperatureMax)
                             .feedback(record.getFeedback())
+                            .referenceImageUrl(record.getReferenceImageUrl())
                             .createTime(record.getCreateTime() == null ? null : record.getCreateTime().format(DATE_TIME_FORMATTER))
                             .build();
                 })

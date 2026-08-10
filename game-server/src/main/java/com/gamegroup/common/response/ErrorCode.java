@@ -62,7 +62,29 @@ public enum ErrorCode {
     WARDROBE_ITEM_NOT_FOUND(8001, "衣物不存在"),
     WARDROBE_ITEM_FORBIDDEN(8002, "无权限访问该衣物"),
     WARDROBE_OUTFIT_PLAN_NOT_FOUND(8003, "搭配方案不存在"),
-    WARDROBE_NO_AVAILABLE_ITEMS(8004, "当前可用衣物较少，请先补充衣物");
+    WARDROBE_NO_AVAILABLE_ITEMS(8004, "当前可用衣物较少，请先补充衣物"),
+    OUTFIT_RENDER_TASK_NOT_FOUND(8005, "参考方案任务不存在"),
+    OUTFIT_RENDER_PROFILE_INCOMPLETE(8006, "请先完善形象资料中的基础信息和三张资料照片"),
+
+    // Mahjong helper errors (9xxx)
+    MAHJONG_IMAGE_EMPTY(9001, "请先上传清晰的手牌照片"),
+    MAHJONG_ANALYZE_FAILED(9002, "暂时无法给出胡牌提示，请稍后重试"),
+
+    // Poker errors (9xxx)
+    POKER_ROOM_NOT_FOUND(9101, "房间不存在"),
+    POKER_ROOM_FULL(9102, "房间已满"),
+    POKER_ROOM_STATUS_INVALID(9103, "房间状态不正确"),
+    POKER_NOT_YOUR_TURN(9104, "未轮到你操作"),
+    POKER_INVALID_ACTION(9105, "非法操作"),
+    POKER_AMOUNT_INVALID(9106, "金额不合法"),
+    POKER_NOT_IN_ROOM(9107, "不在该房间中"),
+    POKER_SEAT_TAKEN(9108, "座位已被占用"),
+    POKER_BUY_IN_INVALID(9109, "买入金额超出区间"),
+    POKER_GAME_NOT_STARTED(9110, "游戏尚未开始"),
+
+    // Resume errors (10xxx)
+    RESUME_NOT_FOUND(10001, "简历不存在"),
+    RESUME_PDF_FAILED(10002, "简历 PDF 生成失败");
 
     private final int code;
     private final String message;

@@ -12,5 +12,7 @@ public interface OutfitRecordRepository extends JpaRepository<OutfitRecord, Long
 
     Optional<OutfitRecord> findByUserIdAndPlanId(Long userId, Long planId);
 
+    Optional<OutfitRecord> findByUserIdAndRenderTaskId(Long userId, Long renderTaskId);
+
     List<OutfitRecord> findByUserIdOrderByTargetDateDescIdDesc(Long userId);
 }

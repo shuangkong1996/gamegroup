@@ -27,6 +27,10 @@
       <text class="action-title">随机搭配</text>
       <text class="action-desc">结合次日天气给你一套参考穿法</text>
     </view>
+    <view class="action-card" bindtap="onOpenProfile">
+      <text class="action-title">形象资料</text>
+      <text class="action-desc">补充身高体重、日常风格和参考照片</text>
+    </view>
     <view class="action-card" bindtap="onOpenHistory">
       <text class="action-title">搭配记录</text>
       <text class="action-desc">看看你已经采纳过哪些组合</text>

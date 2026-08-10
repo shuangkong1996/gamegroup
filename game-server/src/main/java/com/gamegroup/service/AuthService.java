@@ -197,4 +197,67 @@ public class AuthService {
                 .city(user.getCity())
                 .build();
     }
+
+    public UserProfileDTO getUserProfile(Long userId) {
+        return toUserProfileDTO(getUserById(userId));
+    }
+
+    @Transactional
+    public UserProfileDTO updateUserProfile(Long userId, UpdateUserProfileRequest request) {
+        User user = getUserById(userId);
+
+        user.setGender(normalize(request.getGender()));
+        user.setHeightCm(request.getHeightCm());
+        user.setWeightKg(request.getWeightKg());
+        user.setDailyStyle(normalize(request.getDailyStyle()));
+        user.setBodyNote(normalize(request.getBodyNote()));
+        user.setFaceImageUrl(normalize(request.getFaceImageUrl()));
+        user.setFrontBodyImageUrl(normalize(request.getFrontBodyImageUrl()));
+        user.setSideBodyImageUrl(normalize(request.getSideBodyImageUrl()));
+        user.setOutfitReferenceImageUrl(normalize(request.getOutfitReferenceImageUrl()));
+        user.setUseWardrobeItems(request.getUseWardrobeItems() == null ? Boolean.TRUE : request.getUseWardrobeItems());
+
+        user = userRepository.save(user);
+        log.info("User profile updated: userId={}", userId);
+        return toUserProfileDTO(user);
+    }
+
+    private UserProfileDTO toUserProfileDTO(User user) {
+        boolean basicInfoCompleted = user.getHeightCm() != null
+                && user.getWeightKg() != null
+                && hasText(user.getGender())
+                && hasText(user.getDailyStyle());
+        boolean imageInfoCompleted = hasText(user.getFaceImageUrl())
+                && hasText(user.getFrontBodyImageUrl())
+                && hasText(user.getSideBodyImageUrl());
+
+        return UserProfileDTO.builder()
+                .gender(user.getGender())
+                .heightCm(user.getHeightCm())
+                .weightKg(user.getWeightKg())
+                .dailyStyle(user.getDailyStyle())
+                .bodyNote(user.getBodyNote())
+                .faceImageUrl(user.getFaceImageUrl())
+                .frontBodyImageUrl(user.getFrontBodyImageUrl())
+                .sideBodyImageUrl(user.getSideBodyImageUrl())
+                .outfitReferenceImageUrl(user.getOutfitReferenceImageUrl())
+                .useWardrobeItems(user.getUseWardrobeItems() == null ? Boolean.TRUE : user.getUseWardrobeItems())
+                .profileSummary(user.getProfileSummary())
+                .basicInfoCompleted(basicInfoCompleted)
+                .imageInfoCompleted(imageInfoCompleted)
+                .profileCompleted(basicInfoCompleted && imageInfoCompleted)
+                .build();
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
 }

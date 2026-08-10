@@ -27,6 +27,9 @@ public class OutfitRecord {
     @Column(name = "plan_id", nullable = false)
     private Long planId;
 
+    @Column(name = "render_task_id")
+    private Long renderTaskId;
+
     @Column(name = "target_date", nullable = false)
     private LocalDate targetDate;
 
@@ -35,6 +38,9 @@ public class OutfitRecord {
 
     @Column(name = "user_note", length = 255)
     private String userNote;
+
+    @Column(name = "reference_image_url", length = 512)
+    private String referenceImageUrl;
 
     @Column(name = "create_time", nullable = false)
     private LocalDateTime createTime;

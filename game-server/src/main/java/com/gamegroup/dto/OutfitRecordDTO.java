@@ -15,6 +15,8 @@ public class OutfitRecordDTO {
 
     private Long planId;
 
+    private Long renderTaskId;
+
     private String targetDate;
 
     private String planTitle;
@@ -28,6 +30,8 @@ public class OutfitRecordDTO {
     private Integer temperatureMax;
 
     private String feedback;
+
+    private String referenceImageUrl;
 
     private String createTime;
 }
