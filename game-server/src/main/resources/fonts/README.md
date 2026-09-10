@@ -4,33 +4,23 @@
 
 把任意一款支持简体中文的字体文件放到本目录，并命名为下面之一即可：
 
-- `resume-cjk.otf`（推荐）
-- `resume-cjk.ttf`
+- `resume-cjk.ttf`（推荐，OpenHTMLToPDF 可正常嵌入）
+- `resume-cjk.otf`（部分 CFF 字体不兼容）
 - `resume-cjk.ttc`
 
 ## 推荐下载：Noto Sans SC（开源免费）
 
 1. 打开：https://github.com/notofonts/noto-cjk/releases/tag/Sans2.004  
-2. 在 Assets 里下载：  
-   **Region Specific Subset OTFs Simplified Chinese (简体中文)**（约 47.8 MB）  
-   （对应文件名可能是 `18_NotoSansSC.zip`，页面上不一定直接显示这个名字）
-3. 解压后找到 `NotoSansSC-Regular.otf`
-4. 复制并重命名到本目录：
+2. 下载静态 TrueType 字体文件（不要使用可变字体）
+3. 重命名为 `resume-cjk.ttf`
+4. 复制到本目录：
 
 ```bash
-cp /path/to/NotoSansSC-Regular.otf \
-  game-server/src/main/resources/fonts/resume-cjk.otf
+cp /path/to/static-cjk-font.ttf \
+  game-server/src/main/resources/fonts/resume-cjk.ttf
 ```
 
-也可以用命令直接下载 Regular（约 8MB）：
-
-```bash
-cd game-server/src/main/resources/fonts
-curl -L -o resume-cjk.otf \
-  "https://github.com/notofonts/noto-cjk/raw/main/Sans/SubsetOTF/SC/NotoSansSC-Regular.otf"
-```
-
-不要选那几个几百 MB 的 “All …” 大包，也别选 Japanese/Korean。
+项目已内置经过静态化处理的 Noto Sans SC Regular 字体。不要直接替换为可变字体，否则 OpenHTMLToPDF 无法加载。
 ## 不想塞进项目时
 
 在 Linux 服务器安装系统字体即可，例如：

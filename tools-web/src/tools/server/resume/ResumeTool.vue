@@ -5,53 +5,22 @@
     description="填写信息、拖拽排序、切换模板，支持浏览器打印与服务端 PDF 导出。"
   >
     <template #actions>
-      <template v-if="authed || localMode">
-        <button v-if="authed" class="secondary-button" type="button" :disabled="saving" @click="saveResume">
-          {{ saving ? '保存中…' : currentId ? '保存' : '新建保存' }}
-        </button>
-        <button class="secondary-button" type="button" :disabled="exportingPdf" @click="downloadServerPdf">
-          {{ exportingPdf ? '生成中…' : '服务端 PDF' }}
-        </button>
-        <button class="secondary-button" type="button" @click="printResume">浏览器打印</button>
-        <button v-if="authed" class="secondary-button" type="button" @click="logout">退出登录</button>
-      </template>
+      <button class="secondary-button" type="button" :disabled="saving" @click="saveResume">
+        {{ saving ? '保存中…' : currentId ? '保存' : '新建保存' }}
+      </button>
+      <button class="secondary-button" type="button" :disabled="exportingPdf" @click="downloadServerPdf">
+        {{ exportingPdf ? '生成中…' : '服务端 PDF' }}
+      </button>
+      <button class="secondary-button" type="button" @click="printResume">浏览器打印</button>
+      <button class="secondary-button" type="button" @click="logout">退出登录</button>
     </template>
 
-    <section v-if="!authed && !localMode" class="panel space-y-4 p-5 lg:col-span-2">
-      <h2 class="font-semibold tracking-tight text-slate-900 dark:text-zinc-100">登录后同步简历</h2>
-      <p class="text-sm text-muted">使用管理员账号登录。未登录也可本地编辑，并直接导出服务端 PDF。</p>
-      <div class="grid gap-4 sm:grid-cols-2">
-        <label class="block">
-          <span class="mb-2 block text-sm font-medium text-muted">用户名</span>
-          <input v-model="loginForm.username" class="field" autocomplete="username" />
-        </label>
-        <label class="block">
-          <span class="mb-2 block text-sm font-medium text-muted">密码</span>
-          <input
-            v-model="loginForm.password"
-            class="field"
-            type="password"
-            autocomplete="current-password"
-            @keydown.enter="login"
-          />
-        </label>
-      </div>
-      <p v-if="loginError" class="text-sm font-medium text-rose-500">{{ loginError }}</p>
-      <div class="flex flex-wrap gap-2">
-        <button class="primary-button" type="button" :disabled="loggingIn" @click="login">
-          {{ loggingIn ? '登录中…' : '登录' }}
-        </button>
-        <button class="secondary-button" type="button" @click="skipLogin">先本地编辑</button>
-      </div>
-    </section>
-
-    <template v-if="authed || localMode">
-      <section class="panel space-y-5 p-5">
+    <section class="panel space-y-5 p-5">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="font-semibold tracking-tight text-slate-900 dark:text-zinc-100">编辑</h2>
           <div class="flex flex-wrap gap-2">
             <select
-              v-if="authed && resumes.length"
+              v-if="resumes.length"
               v-model="selectedId"
               class="field !w-auto min-w-[10rem] py-2"
               @change="onSelectResume"
@@ -63,7 +32,7 @@
             </select>
             <button class="secondary-button !py-2" type="button" @click="fillSample">填入示例</button>
             <button
-              v-if="authed && currentId"
+              v-if="currentId"
               class="secondary-button !py-2 text-rose-600"
               type="button"
               :disabled="deleting"
@@ -249,16 +218,16 @@
         <p class="text-xs text-muted">
           服务端 PDF 由 Java（openhtmltopdf）生成，部署到 Linux 无需安装浏览器；也可用浏览器打印作兜底。
         </p>
-      </section>
-    </template>
+    </section>
   </ToolWorkspace>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { GripVertical } from '@lucide/vue'
+import { useRouter } from 'vue-router'
 import ToolWorkspace from '@/shared/components/ToolWorkspace.vue'
-import { adminLogin } from '@/shared/api/auth'
+import { clearSession } from '@/shared/auth/session'
 import {
   createResume,
   deleteResume,
@@ -283,14 +252,9 @@ import {
   type ResumeTemplateId
 } from './types'
 
-const TOKEN_KEY = 'token'
 const DRAFT_KEY = 'tools-web-resume-draft'
 
-const authed = ref(Boolean(localStorage.getItem(TOKEN_KEY)))
-const localMode = ref(false)
-const loggingIn = ref(false)
-const loginError = ref('')
-const loginForm = reactive({ username: '', password: '' })
+const router = useRouter()
 
 const resumes = ref<ResumeDTO[]>([])
 const selectedId = ref(0)
@@ -309,40 +273,30 @@ const sectionDragIndex = ref<number | null>(null)
 
 onMounted(async () => {
   restoreDraft()
-  if (authed.value) {
-    await refreshList()
-  }
+  await refreshList()
 })
 
-function skipLogin() {
-  localMode.value = true
-  loginError.value = ''
-}
-
-async function login() {
-  loggingIn.value = true
-  loginError.value = ''
-  try {
-    const result = await adminLogin(loginForm.username.trim(), loginForm.password)
-    localStorage.setItem(TOKEN_KEY, result.token)
-    authed.value = true
-    localMode.value = false
-    loginForm.password = ''
-    await refreshList()
-  } catch (err) {
-    loginError.value = err instanceof Error ? err.message : '登录失败'
-  } finally {
-    loggingIn.value = false
-  }
-}
-
 function logout() {
-  localStorage.removeItem(TOKEN_KEY)
-  authed.value = false
-  localMode.value = true
-  resumes.value = []
-  selectedId.value = 0
-  currentId.value = null
+  clearSession()
+  router.replace({ name: 'resume-login', query: { redirect: '/tools/resume' } })
+}
+
+function handleSessionExpired() {
+  clearSession()
+  router.replace({ name: 'resume-login', query: { redirect: '/tools/resume' } })
+}
+
+function isSessionExpired(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error)
+  return message.includes('未登录') || message.includes('token已失效') || message.includes('401')
+}
+
+function setRequestError(requestError: unknown, fallback: string) {
+  if (isSessionExpired(requestError)) {
+    handleSessionExpired()
+    return
+  }
+  error.value = requestError instanceof Error ? requestError.message : fallback
 }
 
 async function refreshList() {
@@ -353,10 +307,7 @@ async function refreshList() {
       await loadResume(resumes.value[0])
     }
   } catch (err) {
-    error.value = err instanceof Error ? err.message : '加载简历列表失败'
-    if (String(error.value).includes('未登录') || String(error.value).includes('401')) {
-      logout()
-    }
+    setRequestError(err, '加载简历列表失败')
   }
 }
 
@@ -469,10 +420,6 @@ function buildPayload() {
 }
 
 async function saveResume() {
-  if (!authed.value) {
-    error.value = '请先登录后再保存到服务端'
-    return
-  }
   saving.value = true
   error.value = ''
   statusMessage.value = ''
@@ -486,14 +433,14 @@ async function saveResume() {
     persistDraft()
     await refreshList()
   } catch (err) {
-    error.value = err instanceof Error ? err.message : '保存失败'
+    setRequestError(err, '保存失败')
   } finally {
     saving.value = false
   }
 }
 
 async function removeResume() {
-  if (!currentId.value || !authed.value) return
+  if (!currentId.value) return
   if (!window.confirm('确认删除这份简历？')) return
   deleting.value = true
   error.value = ''
@@ -503,7 +450,7 @@ async function removeResume() {
     statusMessage.value = '已删除'
     await refreshList()
   } catch (err) {
-    error.value = err instanceof Error ? err.message : '删除失败'
+    setRequestError(err, '删除失败')
   } finally {
     deleting.value = false
   }
@@ -555,7 +502,6 @@ function restoreDraft() {
     if (draft.content) Object.assign(content, normalizeContent(draft.content))
     if (draft.currentId) currentId.value = draft.currentId
     skillsText.value = content.skills.join(', ')
-    if (!authed.value) localMode.value = true
   } catch {
     // ignore broken draft
   }
@@ -625,6 +571,8 @@ function normalizeProject(item: Partial<ResumeProjectItem>): ResumeProjectItem {
   #resume-print-root,
   #resume-print-root * {
     visibility: visible !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   #resume-print-root {

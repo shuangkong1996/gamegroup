@@ -2,7 +2,6 @@ package com.gamegroup.service.resume;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.HtmlUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -383,11 +382,19 @@ public class ResumeHtmlRenderer {
     }
 
     private String esc(String value) {
-        return HtmlUtils.htmlEscape(value == null ? "" : value);
+        return escapeXml(value == null ? "" : value);
     }
 
     private String esc(String value, String fallback) {
         String text = value == null ? "" : value.trim();
-        return HtmlUtils.htmlEscape(text.isEmpty() ? fallback : text);
+        return escapeXml(text.isEmpty() ? fallback : text);
+    }
+
+    private String escapeXml(String value) {
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
 }

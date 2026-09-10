@@ -138,10 +138,12 @@ const visibleSkills = computed(() => props.content.skills.map((item) => item.tri
 
 .resume-sidebar__chip {
   display: inline-block;
+  max-width: 100%;
   padding: 0.15rem 0.45rem;
   border: 1px solid #4b5563;
-  border-radius: 999px;
+  border-radius: 4px;
   font-size: 11px;
+  line-height: 1.45;
   color: #f3f4f6;
 }
 
@@ -191,5 +193,27 @@ const visibleSkills = computed(() => props.content.skills.map((item) => item.tri
 
 .resume-sidebar__block li + li {
   margin-top: 0.15rem;
+}
+
+@media print {
+  .resume-sidebar__aside {
+    background: #fff;
+    color: #111827;
+    border-right: 1px solid #d1d5db;
+  }
+
+  .resume-sidebar__title,
+  .resume-sidebar__contacts,
+  .resume-sidebar__chip {
+    color: #374151;
+  }
+
+  .resume-sidebar__aside-title {
+    color: #1d4ed8;
+  }
+
+  .resume-sidebar__chip {
+    border-color: #94a3b8;
+  }
 }
 </style>

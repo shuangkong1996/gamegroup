@@ -11,3 +11,7 @@ export interface LoginResponse {
 export function adminLogin(username: string, password: string) {
   return http.post<unknown, LoginResponse>('/auth/admin/login', { username, password })
 }
+
+export function validateSession() {
+  return http.get('/auth/user-info')
+}

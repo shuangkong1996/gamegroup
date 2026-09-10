@@ -59,7 +59,7 @@ public class ResumePdfService {
     }
 
     private void registerCjkFont(PdfRendererBuilder builder) {
-        for (String classpathPath : List.of("fonts/resume-cjk.otf", "fonts/resume-cjk.ttf", "fonts/resume-cjk.ttc")) {
+        for (String classpathPath : List.of("fonts/resume-cjk.ttf", "fonts/resume-cjk.ttc", "fonts/resume-cjk.otf")) {
             ClassPathResource classpathFont = new ClassPathResource(classpathPath);
             if (!classpathFont.exists()) {
                 continue;
