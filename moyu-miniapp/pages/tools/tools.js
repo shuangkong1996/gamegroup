@@ -38,6 +38,20 @@ Page({
         color: '#f472b6'
       },
       {
+        id: 'anniversary',
+        name: '纪念册',
+        desc: '与亲友分享的纪念一刻',
+        emoji: '📖',
+        color: '#c9ad74'
+      },
+      {
+        id: 'anniversary-note',
+        name: '纪念长页',
+        desc: '简洁的纸感纪念页面',
+        emoji: '📝',
+        color: '#d7aaa0'
+      },
+      {
         id: 'toilet',
         name: '厕所时间',
         desc: '带薪拉屎计算器',
@@ -49,8 +63,19 @@ Page({
 
   onToolTap(e) {
     const id = e.currentTarget.dataset.id;
+    const pagePath = id === 'anniversary-note'
+      ? '/pages/anniversary-note/anniversary-note'
+      : `/pages/${id}/${id}`;
+
     wx.navigateTo({
-      url: `/pages/${id}/${id}`
+      url: pagePath,
+      fail: (error) => {
+        console.error('打开工具页面失败', id, error);
+        wx.showToast({
+          title: '页面打开失败，请重新编译',
+          icon: 'none'
+        });
+      }
     });
   },
 

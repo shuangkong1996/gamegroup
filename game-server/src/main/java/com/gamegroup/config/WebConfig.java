@@ -37,6 +37,9 @@ public class WebConfig implements WebMvcConfigurer {
                         "/v3/api-docs/**",
                         "/articles", // 允许未登录查看文章列表
                         "/articles/*", // 允许未登录查看文章详情
+                        "/static-resources/**", // 静态资源地址供未登录页面读取
+                        "/v1/wedding/invitations/*/rsvps", // 婚礼宾客无需登录即可回复
+                        "/v1/wechat/js-sdk/signature", // 婚礼页面获取微信分享签名
                         "/mortgage/**", // 房贷计算器（纯计算，无需登录）
                         "/community/**", // 小区对比助手（公共工具）
                         "/resume/pdf" // 简历 PDF（内容由客户端提交，无需登录）

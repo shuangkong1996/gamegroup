@@ -1,0 +1,128 @@
+<canvas type="2d" id="shareCanvas" class="share-canvas share-canvas-message"></canvas>
+<canvas type="2d" id="timelineCanvas" class="share-canvas share-canvas-timeline"></canvas>
+<view class="album-root">
+  <scroll-view
+    class="album-scroll"
+    scroll-y
+    enhanced
+    bounces
+    show-scrollbar="{{false}}"
+    scroll-with-animation
+    scroll-into-view="{{scrollIntoView}}"
+    style="height: {{sheetHeight}}px; width: 100%;"
+  >
+    <view id="cover" class="cover-section">
+      <image class="cover-photo" src="{{invitation.cover}}" mode="aspectFill" />
+      <view class="cover-shade"></view>
+      <view class="cover-petals" aria-hidden="true">
+        <view class="petal petal-one"></view>
+        <view class="petal petal-two"></view>
+        <view class="petal petal-three"></view>
+      </view>
+      <view class="cover-content">
+        <text class="cover-eyebrow">A CELEBRATION OF LOVE</text>
+        <view class="cover-names">
+          <text>{{invitation.bride}}</text>
+          <text class="cover-amp">&</text>
+          <text>{{invitation.groom}}</text>
+        </view>
+        <view class="cover-divider"><view></view><text>囍</text><view></view></view>
+        <text class="cover-caption">十二年相伴 · 共赴下一程</text>
+        <text class="cover-date">2026 · 11 · 16</text>
+        <view class="cover-open" bindtap="openAlbum">
+          <text>向下翻阅</text>
+          <text class="cover-arrow">↓</text>
+        </view>
+      </view>
+    </view>
+
+    <view id="story" class="story-section">
+      <text class="eyebrow">OUR STORY</text>
+      <text class="section-title">从相遇，到并肩</text>
+      <view class="story-copy reveal-target {{visibleMap.storyCopy ? 'is-visible' : ''}}" data-reveal-key="storyCopy">
+        <text>十二年里，平凡日常一点点成为珍贵回忆。</text>
+        <text>感谢一路相伴，也想把此刻的喜悦与你分享。</text>
+      </view>
+      <view class="story-years">
+        <view><text>2014</text><text>相遇</text></view>
+        <view class="years-line"><view></view></view>
+        <view><text>2026</text><text>相伴十二年</text></view>
+      </view>
+      <view class="section-mark">◇</view>
+    </view>
+
+    <view class="portraits-section">
+      <view class="section-heading">
+        <text class="eyebrow">THE TWO OF US</text>
+        <text class="section-title">故事里的主角</text>
+      </view>
+      <view class="portrait-list">
+        <view wx:for="{{invitation.portraits}}" wx:key="label" class="portrait-item portrait-item-{{index}} reveal-target {{visibleMap[item.image] ? 'is-visible' : ''}}" data-reveal-key="{{item.image}}">
+          <view class="portrait-frame" bindtap="previewPhoto" data-src="{{item.image}}">
+            <image class="portrait-photo" src="{{item.image}}" mode="aspectFill" lazy-load="true" />
+          </view>
+          <view class="portrait-meta">
+            <text class="portrait-label">{{item.label}}</text>
+            <text class="portrait-name">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:for="{{invitation.momentPairs}}" wx:key="layout" class="moments-section moments-{{item.layout}}">
+      <view class="section-heading">
+        <text class="eyebrow">{{index === 0 ? 'LITTLE MOMENTS' : 'SIDE BY SIDE'}}</text>
+        <text class="section-title">{{index === 0 ? '温柔片刻' : '并肩同行'}}</text>
+      </view>
+      <view class="moment-list">
+        <view
+          wx:for="{{item.photos}}"
+          wx:for-item="photo"
+          wx:key="*this"
+          class="moment-frame moment-{{index}} reveal-target {{visibleMap[photo] ? 'is-visible' : ''}}"
+          bindtap="previewPhoto"
+          data-src="{{photo}}"
+          data-reveal-key="{{photo}}"
+        >
+          <view class="moment-photo-clip">
+            <image class="moment-photo" src="{{photo}}" mode="aspectFill" lazy-load="true" />
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="details-section">
+      <view class="details-heading">
+        <text class="eyebrow">SAVE THE DATE</text>
+        <text class="section-title">相聚的日子</text>
+      </view>
+      <view class="date-panel reveal-target {{visibleMap.datePanel ? 'is-visible' : ''}}" data-reveal-key="datePanel">
+        <text class="date-month">NOVEMBER <text>2026</text></text>
+        <text class="date-number">16</text>
+        <text class="date-weekday">MONDAY · {{invitation.weekday}}</text>
+        <text class="date-lunar">{{invitation.lunarDate}}</text>
+      </view>
+      <view class="venue-panel reveal-target {{visibleMap.venuePanel ? 'is-visible' : ''}}" data-reveal-key="venuePanel">
+        <text class="eyebrow">THE VENUE</text>
+        <text class="venue-name">{{invitation.venue}}</text>
+        <text class="venue-address">{{invitation.address}}</text>
+        <view class="address-button" bindtap="copyAddress">
+          <text>{{copied ? '地址已复制' : '复制酒店地址'}}</text>
+          <text>↗</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="closing-section">
+      <image class="closing-photo" src="{{invitation.cover}}" mode="aspectFill" />
+      <view class="closing-shade"></view>
+      <view class="closing-content">
+        <text class="eyebrow">WITH LOVE</text>
+        <text class="closing-names">{{invitation.bride}} <text>&</text> {{invitation.groom}}</text>
+        <view class="closing-rule"></view>
+        <text class="closing-date">2026 · 11 · 16</text>
+        <text class="closing-thanks">期待与你相聚</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

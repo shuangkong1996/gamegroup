@@ -369,6 +369,30 @@ CREATE TABLE IF NOT EXISTS t_weather_snapshot (
     UNIQUE KEY uk_weather_snapshot_user_city_date (user_id, city, target_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Static resource table
+CREATE TABLE IF NOT EXISTS t_static_resource (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    group_key VARCHAR(64) NOT NULL,
+    resource_key VARCHAR(64) NOT NULL,
+    resource_name VARCHAR(128) NOT NULL,
+    resource_url VARCHAR(1024) NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    status TINYINT(1) NOT NULL DEFAULT 1,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_static_resource_group_key (group_key, resource_key),
+    INDEX idx_static_resource_group_status_order (group_key, status, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO t_static_resource (group_key, resource_key, resource_name, resource_url, sort_order, status) VALUES
+('anniversary', 'cover', '纪念册封面', 'https://gamegroup.shuangkong.top/oss/game-images/94cab691-5968-413b-b7ee-61584e779fd4.jpg', 1, 1),
+('anniversary', 'portrait_groom', '新郎单人照', 'https://gamegroup.shuangkong.top/oss/game-images/160bbc40-af03-4a49-93fa-a0196a3c61ba.jpg', 2, 1),
+('anniversary', 'portrait_bride', '新娘单人照', 'https://gamegroup.shuangkong.top/oss/game-images/9e82906d-7d81-4c21-8510-c1fa6bcc7a20.jpg', 3, 1),
+('anniversary', 'moment_1', '纪念照片一', 'https://gamegroup.shuangkong.top/oss/game-images/f2f64936-24cf-4c44-94fe-b824277e1cd8.jpg', 4, 1),
+('anniversary', 'moment_2', '纪念照片二', 'https://gamegroup.shuangkong.top/oss/game-images/791ac7d4-90bf-400e-98c0-40e66d3cb5e7.jpg', 5, 1),
+('anniversary', 'moment_3', '纪念照片三', 'https://gamegroup.shuangkong.top/oss/game-images/c7a2b08e-543e-4677-80a1-a37734f843d3.jpg', 6, 1),
+('anniversary', 'moment_4', '纪念照片四', 'https://gamegroup.shuangkong.top/oss/game-images/9ad12286-a119-4bc0-a8f7-f2a8d08dea57.jpg', 7, 1);
+
 -- Insert sample games
 INSERT INTO t_game (name, icon, description, rules, min_players, max_players, status, sort_order) VALUES
 ('猜数字', '/images/game-number.png', '经典猜数字游戏，看谁先猜中对方的数字', '1. 双方各想一个4位数字\n2. 轮流猜测对方的数字\n3. 系统会提示几个数字正确、位置正确', 2, 2, 1, 1),
@@ -393,3 +417,14 @@ SELECT 0, '现金', 'Cash', 0.00, 'cash', 1
 WHERE NOT EXISTS (
     SELECT 1 FROM t_ledger_account WHERE user_id = 0 AND name = '现金'
 );
+
+-- Wedding invitation RSVP submissions
+CREATE TABLE IF NOT EXISTS t_wedding_rsvp (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    invitation_slug VARCHAR(100) NOT NULL,
+    guest_name VARCHAR(40) NOT NULL,
+    attending TINYINT(1) NOT NULL,
+    guest_count INT NOT NULL DEFAULT 0,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_wedding_rsvp_slug_time (invitation_slug, create_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

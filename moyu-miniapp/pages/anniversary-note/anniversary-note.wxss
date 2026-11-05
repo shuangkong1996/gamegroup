@@ -1,0 +1,344 @@
+page {
+  min-height: 100%;
+  background: #f4f0e8;
+  color: #3e3834;
+  font-family: "Songti SC", "Noto Serif CJK SC", serif;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background: #f4f0e8;
+}
+
+.paper {
+  width: 100%;
+  min-height: 100vh;
+  padding: calc(env(safe-area-inset-top) + 76rpx) 48rpx 100rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f4f0e8;
+  background-image: repeating-linear-gradient(0deg, rgba(113, 93, 67, 0.018) 0, rgba(113, 93, 67, 0.018) 1rpx, transparent 1rpx, transparent 8rpx);
+  text-align: center;
+}
+
+.paper-top {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.double-happiness {
+  align-self: flex-start;
+  color: #963d3b;
+  font-size: 166rpx;
+  line-height: 1;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  margin-top: 34rpx;
+  color: #554c45;
+  font-size: 25rpx;
+  line-height: 1.9;
+}
+
+.invite-title {
+  color: #493d36;
+  font-size: 42rpx;
+  line-height: 1.4;
+}
+
+.invite-subtitle {
+  margin: 8rpx 0 30rpx;
+  color: #8c7d6f;
+  font-family: Georgia, serif;
+  font-size: 17rpx;
+  letter-spacing: 3rpx;
+}
+
+.invite-copy {
+  line-height: 1.9;
+}
+
+.invite-final {
+  margin-top: 12rpx;
+}
+
+.date-signature {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  align-self: flex-end;
+  margin-top: 38rpx;
+  color: #766b61;
+  font-family: Georgia, serif;
+  font-size: 19rpx;
+}
+
+.date-signature view {
+  width: 28rpx;
+  height: 1rpx;
+  background: #a99a87;
+}
+
+.photo-wrap {
+  width: 76%;
+  height: 700rpx;
+  margin-top: 58rpx;
+  padding: 12rpx;
+  box-sizing: border-box;
+  background: #fffdf8;
+  box-shadow: 0 12rpx 34rpx rgba(70, 55, 40, 0.12);
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+}
+
+.names {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 28rpx;
+  color: #443a34;
+  font-size: 30rpx;
+}
+
+.names-separator {
+  color: #a56f68;
+  font-family: Georgia, serif;
+  font-size: 22rpx;
+  font-style: italic;
+}
+
+.ornament {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 34rpx;
+  color: #a88571;
+  font-size: 18rpx;
+}
+
+.ornament view {
+  width: 52rpx;
+  height: 1rpx;
+  background: #c8b7a2;
+}
+
+.date-block,
+.location-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.date-block {
+  width: 100%;
+  margin-top: 42rpx;
+}
+
+.date-heading,
+.location-heading,
+.tips-heading {
+  margin-top: 24rpx;
+  color: #4f453d;
+  font-size: 27rpx;
+}
+
+.section-label {
+  color: #897b69;
+  font-family: Georgia, serif;
+  font-size: 17rpx;
+  letter-spacing: 3rpx;
+}
+
+.month {
+  margin-top: 26rpx;
+  color: #776958;
+  font-family: Georgia, serif;
+  font-size: 18rpx;
+  letter-spacing: 3rpx;
+}
+
+.calendar {
+  width: 100%;
+  margin-top: 20rpx;
+}
+
+.calendar-week {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48rpx;
+}
+
+.calendar-weekday,
+.calendar-day {
+  display: flex;
+  width: 14.28%;
+  height: 42rpx;
+  align-items: center;
+  justify-content: center;
+  color: #685e54;
+  font-family: Georgia, serif;
+  font-size: 17rpx;
+}
+
+.calendar-weekday {
+  color: #978979;
+  font-size: 15rpx;
+}
+
+.calendar-day.selected {
+  position: relative;
+  color: #8f4742;
+}
+
+.calendar-day.selected::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 38rpx;
+  height: 38rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #9b5c56;
+  border-radius: 50%;
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.full-date {
+  margin-top: 24rpx;
+  color: #51473f;
+  font-size: 22rpx;
+}
+
+.month text {
+  margin-left: 8rpx;
+  color: #473d35;
+}
+
+.lunar {
+  margin-top: 14rpx;
+  color: #8c6b62;
+  font-size: 22rpx;
+}
+
+.location-block {
+  width: 100%;
+  margin-top: 48rpx;
+  padding-top: 52rpx;
+  border-top: 1rpx solid rgba(160, 142, 120, 0.35);
+}
+
+.venue {
+  margin-top: 28rpx;
+  color: #453c35;
+  font-size: 30rpx;
+}
+
+.address {
+  margin-top: 12rpx;
+  color: #71665c;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.copy-address {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14rpx;
+  min-width: 240rpx;
+  height: 68rpx;
+  margin-top: 24rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  border: 1rpx solid rgba(128, 104, 84, 0.48);
+  color: #65584c;
+  font-size: 21rpx;
+}
+
+.tips-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  border-top: 1rpx solid rgba(160, 142, 120, 0.35);
+}
+
+.tips-section {
+  margin-top: 42rpx;
+  padding-top: 48rpx;
+}
+
+.tips-heading {
+  margin-bottom: 28rpx;
+}
+
+.tip-row {
+  width: 100%;
+  display: flex;
+  gap: 12rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid rgba(160, 142, 120, 0.24);
+  color: #64594f;
+  font-size: 20rpx;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.tip-row text:first-child {
+  width: 84rpx;
+  flex-shrink: 0;
+  color: #9b8570;
+}
+
+.tip-row text:last-child {
+  flex: 1;
+}
+
+.tips-note {
+  margin-top: 28rpx;
+  color: #8a7b6d;
+  font-size: 21rpx;
+}
+
+.closing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 66rpx;
+  padding-top: 16rpx;
+  color: #594d43;
+  font-size: 24rpx;
+}
+
+.closing-rule {
+  width: 100rpx;
+  height: 1rpx;
+  margin-bottom: 28rpx;
+  background: #c8b7a2;
+}
+
+.closing-mark {
+  margin-bottom: 14rpx;
+  color: #a65e59;
+  font-size: 32rpx;
+}
+
+.closing-small {
+  margin-top: 14rpx;
+  color: #8a7c6c;
+  font-size: 20rpx;
+}

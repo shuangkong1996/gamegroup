@@ -39,6 +39,10 @@ const fileApi = {
   uploadImage: (filePath) => upload('/v1/file/upload', filePath)
 };
 
+const staticResourceApi = {
+  getByGroup: (groupKey) => get(`/static-resources/${encodeURIComponent(groupKey)}`)
+};
+
 // 厕所时间相关
 const toiletApi = {
   // 开始计时
@@ -149,6 +153,7 @@ module.exports = {
   quoteApi,
   authApi,
   fileApi,
+  staticResourceApi,
   toiletApi,
   ledgerApi,
   mortgageApi,

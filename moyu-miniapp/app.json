@@ -13,7 +13,9 @@
     "pages/user-profile/user-profile",
     "pages/wardrobe-item/wardrobe-item",
     "pages/outfit/outfit",
-    "pages/outfit-history/outfit-history"
+    "pages/outfit-history/outfit-history",
+    "pages/anniversary/anniversary",
+    "pages/anniversary-note/anniversary-note"
   ],
   "window": {
     "navigationBarBackgroundColor": "#1a1a2e",

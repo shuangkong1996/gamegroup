@@ -1,0 +1,81 @@
+<view class="page">
+  <view class="paper">
+    <view class="paper-top">
+      <text class="double-happiness">囍</text>
+      <view class="intro">
+        <text class="invite-title">婚礼邀请</text>
+        <text class="invite-subtitle">WEDDING INVITATION</text>
+        <text class="invite-copy">把喜悦写成请柬</text>
+        <text class="invite-copy">把座位留给你</text>
+        <text class="invite-copy">把祝福留给这一天</text>
+        <text class="invite-final">诚挚邀请您来参加我们的婚礼</text>
+      </view>
+      <view class="date-signature">
+        <text>陈爽 · 邓睿</text>
+        <view></view>
+        <text>2026.11.16</text>
+      </view>
+    </view>
+
+    <view class="photo-wrap">
+      <image class="photo" src="{{photo}}" mode="aspectFill" />
+    </view>
+    <view class="names">
+      <text>陈爽</text>
+      <text class="names-separator">&</text>
+      <text>邓睿</text>
+    </view>
+
+    <view class="ornament"><view></view><text>◇</text><view></view></view>
+
+    <view class="date-block">
+      <text class="section-label">DATE</text>
+      <text class="date-heading">把这一天，留给值得纪念的我们</text>
+      <text class="month">NOVEMBER <text>2026</text></text>
+      <view class="calendar">
+        <view class="calendar-week">
+          <text wx:for="{{weekdays}}" wx:key="*this" class="calendar-weekday">{{item}}</text>
+        </view>
+        <view wx:for="{{calendarWeeks}}" wx:for-item="week" wx:key="key" class="calendar-week">
+          <text
+            wx:for="{{week.days}}"
+            wx:for-item="day"
+            wx:key="key"
+            class="calendar-day {{day.value === '16' ? 'selected' : ''}}"
+          >{{day.value}}</text>
+        </view>
+      </view>
+      <text class="full-date">2026年11月16日 · 星期一</text>
+      <text class="lunar">农历丙午年十月初八</text>
+    </view>
+
+    <view class="location-block">
+      <text class="section-label">ADDRESS</text>
+      <text class="location-heading">相聚的地址</text>
+      <text class="venue">玉泉大酒店</text>
+      <text class="address">四川省遂宁市安居区</text>
+      <text class="address">拦江镇东平街20号</text>
+      <view class="copy-address" bindtap="copyAddress">
+        <text>{{copied ? '地址已复制' : '复制完整地址'}}</text>
+        <text>↗</text>
+      </view>
+    </view>
+
+    <view class="tips-section">
+      <text class="section-label">TIPS</text>
+      <text class="tips-heading">记下这份约定</text>
+      <view class="tip-row"><text>日 期</text><text>2026年11月16日 · 星期一</text></view>
+      <view class="tip-row"><text>农 历</text><text>丙午年十月初八</text></view>
+      <view class="tip-row"><text>地 点</text><text>四川省遂宁市安居区拦江镇</text></view>
+      <view class="tip-row"><text></text><text>东平街20号玉泉大酒店</text></view>
+      <text class="tips-note">期待与你相聚，共享这份喜悦。</text>
+    </view>
+
+    <view class="closing">
+      <view class="closing-rule"></view>
+      <text class="closing-mark">♡</text>
+      <text>十二年同行，故事仍在继续。</text>
+      <text class="closing-small">期待与你相聚 · 陈爽 & 邓睿</text>
+    </view>
+  </view>
+</view>

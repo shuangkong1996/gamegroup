@@ -1,0 +1,43 @@
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  background: #0b0a14;
+  color: #ece9fb;
+  overflow: hidden;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+#world {
+  position: absolute;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+#world canvas {
+  width: 100% !important;
+  height: 100% !important;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+#hud {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 2;
+  pointer-events: none;
+  font-size: 13px;
+  line-height: 1.55;
+  text-shadow: 0 1px 0 #0b0a14;
+}
+
+#hud b {
+  color: #ffc94d;
+  font-weight: 600;
+}
+
+#hud .dim {
+  color: #9a94c4;
+}
