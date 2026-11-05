@@ -270,9 +270,11 @@ public class LedgerService {
                 .build();
     }
 
-    public LedgerOverviewStatsDTO getOverviewStats(Long userId, String month, String startDate, String endDate) {
+    public LedgerOverviewStatsDTO getOverviewStats(
+            Long userId, String month, String startDate, String endDate, Long accountId, Long categoryId) {
         DateRange range = resolveRange(month, startDate, endDate);
-        List<LedgerRecord> records = findRecordsByRange(userId, range);
+        validateStatsFilters(userId, accountId, categoryId);
+        List<LedgerRecord> records = findRecordsByRange(userId, range, accountId, categoryId);
         BigDecimal totalIncome = BigDecimal.ZERO;
         BigDecimal totalExpense = BigDecimal.ZERO;
         for (LedgerRecord record : records) {
@@ -289,9 +291,11 @@ public class LedgerService {
                 .build();
     }
 
-    public List<LedgerTrendPointDTO> getTrendStats(Long userId, String month, String startDate, String endDate) {
+    public List<LedgerTrendPointDTO> getTrendStats(
+            Long userId, String month, String startDate, String endDate, Long accountId, Long categoryId) {
         DateRange range = resolveRange(month, startDate, endDate);
-        List<LedgerRecord> records = findRecordsByRange(userId, range);
+        validateStatsFilters(userId, accountId, categoryId);
+        List<LedgerRecord> records = findRecordsByRange(userId, range, accountId, categoryId);
         Map<LocalDate, LedgerTrendPointDTO> dayMap = new LinkedHashMap<>();
         LocalDate cursor = range.startDate();
         while (!cursor.isAfter(range.endDate())) {
@@ -318,9 +322,11 @@ public class LedgerService {
         return dayMap.values().stream().toList();
     }
 
-    public LedgerCategoryStatsResponse getCategoryStats(Long userId, String month, String startDate, String endDate) {
+    public LedgerCategoryStatsResponse getCategoryStats(
+            Long userId, String month, String startDate, String endDate, Long accountId, Long categoryId) {
         DateRange range = resolveRange(month, startDate, endDate);
-        List<LedgerRecord> records = findRecordsByRange(userId, range);
+        validateStatsFilters(userId, accountId, categoryId);
+        List<LedgerRecord> records = findRecordsByRange(userId, range, accountId, categoryId);
         return LedgerCategoryStatsResponse.builder()
                 .expense(buildCategoryStats(records, TYPE_EXPENSE))
                 .income(buildCategoryStats(records, TYPE_INCOME))
@@ -434,12 +440,25 @@ public class LedgerService {
         return new DateRange(start, end);
     }
 
-    private List<LedgerRecord> findRecordsByRange(Long userId, DateRange range) {
-        return ledgerRecordRepository.findByUserIdAndRecordTimeBetweenOrderByRecordTimeAscIdAsc(
+    private List<LedgerRecord> findRecordsByRange(Long userId, DateRange range, Long accountId, Long categoryId) {
+        return ledgerRecordRepository.findForStats(
                 userId,
                 range.start(),
-                range.endExclusive()
+                range.endExclusive(),
+                accountId,
+                categoryId
         );
+    }
+
+    private void validateStatsFilters(Long userId, Long accountId, Long categoryId) {
+        if (accountId != null) {
+            ledgerAccountRepository.findByIdAndUserId(accountId, userId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.LEDGER_ACCOUNT_NOT_FOUND));
+        }
+        if (categoryId != null) {
+            ledgerCategoryRepository.findByIdAndUserIdIn(categoryId, List.of(SYSTEM_USER_ID, userId))
+                    .orElseThrow(() -> new BusinessException(ErrorCode.LEDGER_CATEGORY_NOT_FOUND));
+        }
     }
 
     private record DateRange(LocalDate startDate, LocalDate endDate) {

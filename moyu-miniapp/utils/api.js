@@ -63,6 +63,12 @@ const toiletApi = {
 
 // 记账相关
 const ledgerApi = {
+  getCalendarYear: (year) => request({
+    url: `/ledger/calendar/${year}`,
+    method: 'GET',
+    silent: true
+  }),
+
   // 获取账户列表（带余额）
   getAccounts: () => get('/ledger/accounts'),
 

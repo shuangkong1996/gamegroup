@@ -6,12 +6,14 @@ import com.gamegroup.dto.CreateLedgerBatchRecordRequest;
 import com.gamegroup.dto.CreateLedgerRecordRequest;
 import com.gamegroup.dto.LedgerAccountDTO;
 import com.gamegroup.dto.LedgerBatchRecordResponse;
+import com.gamegroup.dto.LedgerCalendarResponse;
 import com.gamegroup.dto.LedgerCategoryGroupDTO;
 import com.gamegroup.dto.LedgerCategoryStatsResponse;
 import com.gamegroup.dto.LedgerOverviewStatsDTO;
 import com.gamegroup.dto.LedgerRecordDTO;
 import com.gamegroup.dto.LedgerRecordQueryResponse;
 import com.gamegroup.dto.LedgerTrendPointDTO;
+import com.gamegroup.service.LedgerCalendarService;
 import com.gamegroup.service.LedgerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +38,13 @@ import java.util.List;
 public class LedgerController {
 
     private final LedgerService ledgerService;
+    private final LedgerCalendarService ledgerCalendarService;
+
+    @Operation(summary = "获取指定年度的节假日与调休日期")
+    @GetMapping("/calendar/{year}")
+    public ApiResponse<LedgerCalendarResponse> getCalendar(@PathVariable int year) {
+        return ApiResponse.success(ledgerCalendarService.getYear(year));
+    }
 
     @Operation(summary = "获取账户列表")
     @GetMapping("/accounts")
@@ -102,8 +111,10 @@ public class LedgerController {
             @RequestAttribute("userId") Long userId,
             @RequestParam(required = false) String month,
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
-        return ApiResponse.success(ledgerService.getOverviewStats(userId, month, startDate, endDate));
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) Long accountId,
+            @RequestParam(required = false) Long categoryId) {
+        return ApiResponse.success(ledgerService.getOverviewStats(userId, month, startDate, endDate, accountId, categoryId));
     }
 
     @Operation(summary = "获取每日收支趋势")
@@ -112,8 +123,10 @@ public class LedgerController {
             @RequestAttribute("userId") Long userId,
             @RequestParam(required = false) String month,
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
-        return ApiResponse.success(ledgerService.getTrendStats(userId, month, startDate, endDate));
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) Long accountId,
+            @RequestParam(required = false) Long categoryId) {
+        return ApiResponse.success(ledgerService.getTrendStats(userId, month, startDate, endDate, accountId, categoryId));
     }
 
     @Operation(summary = "获取分类占比")
@@ -122,7 +135,9 @@ public class LedgerController {
             @RequestAttribute("userId") Long userId,
             @RequestParam(required = false) String month,
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
-        return ApiResponse.success(ledgerService.getCategoryStats(userId, month, startDate, endDate));
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) Long accountId,
+            @RequestParam(required = false) Long categoryId) {
+        return ApiResponse.success(ledgerService.getCategoryStats(userId, month, startDate, endDate, accountId, categoryId));
     }
 }

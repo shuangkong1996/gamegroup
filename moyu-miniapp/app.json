@@ -6,6 +6,7 @@
     "pages/toilet/toilet",
     "pages/fake-work/fake-work",
     "pages/ledger/ledger",
+    "pages/ledger-stats/ledger-stats",
     "pages/mortgage/mortgage",
     "pages/community-compare/community-compare",
     "pages/mahjong-helper/mahjong-helper",

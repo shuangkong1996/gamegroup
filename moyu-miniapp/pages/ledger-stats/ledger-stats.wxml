@@ -1,0 +1,85 @@
+<view class="stats-page">
+  <view class="stats-hero">
+    <text class="stats-eyebrow">FINANCIAL OVERVIEW</text>
+    <text class="stats-title">收支分析</text>
+    <text class="stats-description">看清收支节奏与主要支出</text>
+
+    <view class="stats-filter">
+      <view class="stats-filter-head">
+        <text>分析周期</text>
+        <view class="stats-mode">
+          <button class="{{timeFilterMode === 'month' ? 'active' : ''}}" data-mode="month" bindtap="onTimeFilterModeTap">按月</button>
+          <button class="{{timeFilterMode === 'range' ? 'active' : ''}}" data-mode="range" bindtap="onTimeFilterModeTap">自定义</button>
+        </view>
+      </view>
+      <picker wx:if="{{timeFilterMode === 'month'}}" mode="date" fields="month" value="{{monthPickValue}}" start="2000-01-01" end="2099-12-31" bindchange="onMonthPick">
+        <view class="stats-date">{{month}} <text>⌄</text></view>
+      </picker>
+      <view wx:else class="stats-range">
+        <picker mode="date" value="{{rangeStartDate}}" start="2000-01-01" end="2099-12-31" bindchange="onRangeStartDateChange"><view class="stats-date">{{rangeStartDate}} <text>⌄</text></view></picker>
+        <text class="range-separator">至</text>
+        <picker mode="date" value="{{rangeEndDate}}" start="2000-01-01" end="2099-12-31" bindchange="onRangeEndDateChange"><view class="stats-date">{{rangeEndDate}} <text>⌄</text></view></picker>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="stats-loading">正在整理收支数据…</view>
+  <view wx:else class="stats-content">
+    <view class="cashflow-panel">
+      <text class="panel-kicker">NET CASH FLOW</text>
+      <text class="cashflow-total">¥ {{overview.balance}}</text>
+      <view class="cashflow-items">
+        <view><text>收入</text><text class="income-number">+ {{overview.totalIncome}}</text></view>
+        <view><text>支出</text><text class="expense-number">− {{overview.totalExpense}}</text></view>
+      </view>
+      <view class="ratio-track"><view class="ratio-fill" style="width: {{expenseRatio}}%"></view></view>
+      <text class="ratio-caption">支出占收入 {{expenseRatioText}}%</text>
+    </view>
+
+    <view class="insight-row">
+      <view class="insight-item">
+        <text class="insight-label">日均支出</text>
+        <text class="insight-value">¥ {{averageDailyExpense}}</text>
+      </view>
+      <view class="insight-item">
+        <text class="insight-label">最大支出分类</text>
+        <text class="insight-value">{{topCategory ? topCategory.categoryName : '暂无'}}</text>
+      </view>
+    </view>
+
+    <view class="chart-section">
+      <view class="section-heading">
+        <view><text class="chart-title">分类构成</text><text class="chart-subtitle">按金额从高到低排列</text></view>
+        <view class="type-switch">
+          <button class="{{activeType === 1 ? 'active expense-active' : ''}}" data-type="1" bindtap="onCategoryTypeTap">支出</button>
+          <button class="{{activeType === 2 ? 'active income-active' : ''}}" data-type="2" bindtap="onCategoryTypeTap">收入</button>
+        </view>
+      </view>
+      <view wx:if="{{categories.length === 0}}" class="chart-empty">这个周期暂无分类数据</view>
+      <view wx:else class="category-chart">
+        <view wx:for="{{categories}}" wx:key="categoryId" class="category-chart-row">
+          <view class="category-line"><text>{{item.categoryName}}</text><text>¥ {{item.amountText}}</text></view>
+          <view class="category-track"><view class="category-fill {{activeType === 2 ? 'income-fill' : ''}}" style="width: {{item.barWidth}}%"></view></view>
+          <text class="category-share">{{item.percentageText}}%</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="chart-section trend-section">
+      <view class="section-heading">
+        <view><text class="chart-title">每日收支</text><text class="chart-subtitle">最近 14 天</text></view>
+        <view class="legend"><text><view class="legend-dot legend-income"></view>收入</text><text><view class="legend-dot legend-expense"></view>支出</text></view>
+      </view>
+      <view wx:if="{{trends.length === 0}}" class="chart-empty">暂无趋势数据</view>
+      <view wx:else class="trend-chart">
+        <view wx:for="{{trends}}" wx:key="date" class="trend-chart-row">
+          <text class="trend-date">{{item.day}}</text>
+          <view class="trend-track"><view class="trend-fill trend-income-fill" style="width: {{item.incomeWidth}}%"></view></view>
+          <text class="trend-amount">{{item.income}}</text>
+          <view class="trend-track"><view class="trend-fill trend-expense-fill" style="width: {{item.expenseWidth}}%"></view></view>
+          <text class="trend-amount">{{item.expense}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -35,25 +35,31 @@ const request = (options) => {
             wx.removeStorageSync('token');
             reject(new Error(data.message || '登录已过期'));
           } else {
-            wx.showToast({
-              title: data.message || '请求失败',
-              icon: 'none'
-            });
+            if (!options.silent) {
+              wx.showToast({
+                title: data.message || '请求失败',
+                icon: 'none'
+              });
+            }
             reject(new Error(data.message));
           }
         } else {
-          wx.showToast({
-            title: '网络错误',
-            icon: 'none'
-          });
+          if (!options.silent) {
+            wx.showToast({
+              title: '网络错误',
+              icon: 'none'
+            });
+          }
           reject(new Error('网络错误'));
         }
       },
       fail: (err) => {
-        wx.showToast({
-          title: '网络连接失败',
-          icon: 'none'
-        });
+        if (!options.silent) {
+          wx.showToast({
+            title: '网络连接失败',
+            icon: 'none'
+          });
+        }
         reject(err);
       }
     });

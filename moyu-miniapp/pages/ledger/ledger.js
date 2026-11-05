@@ -44,8 +44,6 @@ Page({
       totalExpense: 0,
       balance: 0
     },
-    expenseCategoryStats: [],
-    trendLast7: [],
 
     // 弹窗状态
     openRecordModal: false,
@@ -97,11 +95,12 @@ Page({
     batchCalendarCells: [],
     batchAccountPickerRange: ['请选择账户'],
     batchCategoryPickerRange: ['请选择分类'],
+    batchAccountIndex: 0,
+    batchCategoryIndex: 0,
+    batchCalendarExceptions: {},
+    batchCalendarSourceAvailable: false,
     // 批量记账预览（总金额）
     batchTotalAmount: '0.00',
-
-    // 弹窗滚动区高度（px），避免 scroll-view 与底部按钮重叠
-    modalScrollHeightPx: 420
   },
 
   onLoad() {
@@ -118,27 +117,10 @@ Page({
       monthPickValue: `${ym}-01`,
       rangeStartDate: cachedFilter.rangeStartDate || firstDay,
       rangeEndDate: cachedFilter.rangeEndDate || ymd,
-      loading: true,
-      modalScrollHeightPx: this.computeModalScrollHeightPx()
+      loading: true
     });
 
     this.init();
-  },
-
-  computeModalScrollHeightPx() {
-    // 86vh 弹窗高度 - (标题/间距 + 底部按钮区 + 安全区) 约等于滚动区高度
-    // 用 px 明确指定，避免 scroll-view 在 flex 下不按预期布局
-    const info = wx.getSystemInfoSync();
-    const vh = info.windowHeight * 0.86;
-    const safeBottom = (info.safeArea && info.safeArea.bottom)
-      ? Math.max(0, info.windowHeight - info.safeArea.bottom)
-      : 0;
-
-    const headerAndPadding = 120; // 标题+padding 粗略
-    const actions = 110; // 底部操作区高度粗略
-    const extra = 12;
-    const h = Math.floor(vh - headerAndPadding - actions - safeBottom - extra);
-    return Math.max(260, h);
   },
 
   async init() {
@@ -175,12 +157,11 @@ Page({
     });
   },
 
-  // 月份选择
-  onMonthPick(e) {
-    const month = e.detail.value || '';
+  onTimeFilterModeTap(e) {
+    const mode = e.currentTarget.dataset.mode === 'range' ? 'range' : 'month';
+    if (mode === this.data.timeFilterMode) return;
     this.setData({
-      month,
-      monthPickValue: `${month}-01`,
+      timeFilterMode: mode,
       page: 1,
       groupedRecords: [],
       total: 0,
@@ -190,10 +171,12 @@ Page({
     this.refreshRecords();
   },
 
-  onTimeFilterModeChange(e) {
-    const mode = e.detail.value === 'range' ? 'range' : 'month';
+  // 月份选择
+  onMonthPick(e) {
+    const month = e.detail.value || '';
     this.setData({
-      timeFilterMode: mode,
+      month,
+      monthPickValue: `${month}-01`,
       page: 1,
       groupedRecords: [],
       total: 0,
@@ -355,7 +338,6 @@ Page({
       openRecordModal: true,
       recordAccountIndex: 0,
       recordCategoryIndex: 0,
-      modalScrollHeightPx: this.computeModalScrollHeightPx(),
       'recordForm.type': type,
       'recordForm.amount': '',
       'recordForm.remark': '',
@@ -375,6 +357,17 @@ Page({
 
   closeRecordModal() {
     this.setData({ openRecordModal: false });
+  },
+
+  openStatsPage() {
+    const params = this.buildTimeQueryParams();
+    if (params.timeInvalid) return;
+    if (this.data.selectedAccountId != null) params.accountId = this.data.selectedAccountId;
+    if (this.data.selectedCategoryId != null) params.categoryId = this.data.selectedCategoryId;
+    const query = Object.keys(params)
+      .map(key => `${key}=${encodeURIComponent(params[key])}`)
+      .join('&');
+    wx.navigateTo({ url: `/pages/ledger-stats/ledger-stats?${query}` });
   },
 
   onRecordTypeChange(e) {
@@ -537,7 +530,6 @@ Page({
   openAccountModal() {
     this.setData({
       openAccountModal: true,
-      modalScrollHeightPx: this.computeModalScrollHeightPx(),
       'accountForm.name': '',
       'accountForm.type': 'General'
     });
@@ -585,13 +577,12 @@ Page({
     const [yearStr, monthStr] = month.split('-');
     const defaultPickValue = `${yearStr}-${monthStr}-${`${now.getDate()}`.padStart(2, '0')}`;
 
-    const batchWorkdays = this.generateWorkdaysForMonth(month);
-    const batchCalendarCells = this.buildCalendarCells(month, []);
+    const batchWorkdays = this.generateWorkdaysForMonth(month, {});
+    const batchCalendarCells = this.buildCalendarCells(month, [], {});
 
     this.setData({
       openBatchModal: true,
       batchMonthPickValue: defaultPickValue,
-      modalScrollHeightPx: this.computeModalScrollHeightPx(),
       'batchForm.type': type,
       'batchForm.accountId': accountId,
       'batchForm.categoryId': categoryId,
@@ -602,14 +593,41 @@ Page({
       'batchForm.recordDates': [],
       batchWorkdays,
       batchCalendarCells,
+      batchCalendarExceptions: {},
+      batchCalendarSourceAvailable: false,
+      batchAccountIndex: 0,
+      batchCategoryIndex: 0,
       batchAccountPickerRange: this.data.accounts.length ? this.data.accounts.map(a => a.name || '账户') : ['请选择账户'],
       batchCategoryPickerRange: categories.length ? categories.map(c => c.name || '分类') : ['请选择分类']
     });
     this.updateBatchPreview([]);
+    this.loadBatchCalendar(month);
   },
 
   closeBatchModal() {
     this.setData({ openBatchModal: false });
+  },
+
+  async loadBatchCalendar(month) {
+    try {
+      const year = Number(month.slice(0, 4));
+      const calendar = await ledgerApi.getCalendarYear(year);
+      if (!calendar || !calendar.sourceAvailable || this.data.batchForm.month !== month) return;
+
+      const exceptions = {};
+      (calendar.days || []).forEach(day => {
+        exceptions[day.date] = { offDay: day.offDay, name: day.name };
+      });
+      const selectedDates = this.data.batchForm.recordDates || [];
+      this.setData({
+        batchCalendarExceptions: exceptions,
+        batchCalendarSourceAvailable: true,
+        batchWorkdays: this.generateWorkdaysForMonth(month, exceptions),
+        batchCalendarCells: this.buildCalendarCells(month, selectedDates, exceptions)
+      });
+    } catch (err) {
+      console.warn('加载调休日历失败，使用周一至周五规则', err);
+    }
   },
 
   onBatchTypeChange(e) {
@@ -622,6 +640,7 @@ Page({
     this.setData({
       'batchForm.type': safeType,
       'batchForm.categoryId': categoryId,
+      batchCategoryIndex: 0,
       batchCategoryPickerRange
     });
   },
@@ -631,7 +650,10 @@ Page({
     if (Number.isNaN(idx) || !this.data.accounts.length) return;
     const account = this.data.accounts[idx];
     if (!account) return;
-    this.setData({ 'batchForm.accountId': account.id });
+    this.setData({
+      'batchForm.accountId': account.id,
+      batchAccountIndex: idx
+    });
   },
 
   onBatchCategoryChange(e) {
@@ -642,14 +664,17 @@ Page({
     if (!categories.length) return;
     const category = categories[idx];
     if (!category) return;
-    this.setData({ 'batchForm.categoryId': category.id });
+    this.setData({
+      'batchForm.categoryId': category.id,
+      batchCategoryIndex: idx
+    });
   },
 
   onBatchMonthPick(e) {
     const value = e.detail.value || '';
     const month = value.slice(0, 7);
-    const batchWorkdays = this.generateWorkdaysForMonth(month);
-    const batchCalendarCells = this.buildCalendarCells(month, []);
+    const batchWorkdays = this.generateWorkdaysForMonth(month, {});
+    const batchCalendarCells = this.buildCalendarCells(month, [], {});
 
     const type = Number(this.data.batchForm.type || 1);
     const categories = type === 2 ? this.data.incomeCategories : this.data.expenseCategories;
@@ -660,12 +685,16 @@ Page({
       batchMonthPickValue: value,
       batchWorkdays,
       batchCalendarCells,
+      batchCalendarExceptions: {},
+      batchCalendarSourceAvailable: false,
       // 切换月份后默认清空选择，由用户按需点选或全选工作日
       'batchForm.recordDates': [],
-      'batchForm.categoryId': categoryId
+      'batchForm.categoryId': categoryId,
+      batchCategoryIndex: 0
     });
 
     this.updateBatchPreview([]);
+    this.loadBatchCalendar(month);
   },
 
   toggleBatchDate(e) {
@@ -774,7 +803,7 @@ Page({
     const timeParams = this.buildTimeQueryParams();
     if (timeParams.timeInvalid) return;
     await this.loadRecords(false);
-    await Promise.all([this.loadOverviewStats(), this.loadCategoryStats(), this.loadTrendStats()]);
+    await this.loadOverviewStats();
   },
 
   async loadBaseData() {
@@ -816,53 +845,15 @@ Page({
   },
 
   async loadOverviewStats() {
-    const overview = (await ledgerApi.getOverviewStats(this.buildTimeQueryParams())) || {};
+    const params = this.buildTimeQueryParams();
+    if (this.data.selectedAccountId != null) params.accountId = this.data.selectedAccountId;
+    if (this.data.selectedCategoryId != null) params.categoryId = this.data.selectedCategoryId;
+    const overview = (await ledgerApi.getOverviewStats(params)) || {};
     this.setData({
       'overview.totalIncome': this.moneyToFixed2(overview.totalIncome),
       'overview.totalExpense': this.moneyToFixed2(overview.totalExpense),
       'overview.balance': this.moneyToFixed2(overview.balance)
     });
-  },
-
-  async loadCategoryStats() {
-    const res = (await ledgerApi.getCategoryStats(this.buildTimeQueryParams())) || {};
-    const expense = res.expense || [];
-
-    const expenseCategoryStats = expense.map(item => {
-      const percentage = Number(item.percentage || 0);
-      return {
-        categoryId: item.categoryId,
-        categoryName: item.categoryName,
-        totalAmount: this.moneyToFixed2(item.totalAmount),
-        percentage: percentage.toFixed(2),
-        widthPercent: Math.max(0, Math.min(100, percentage))
-      };
-    });
-
-    this.setData({ expenseCategoryStats });
-  },
-
-  async loadTrendStats() {
-    const points = (await ledgerApi.getTrendStats(this.buildTimeQueryParams())) || [];
-    const last7 = points.slice(-7);
-
-    const maxValue = Math.max(...last7.map(p => Math.max(Number(p.income || 0), Number(p.expense || 0))));
-
-    const trendLast7 = last7.map(p => {
-      const incomeNum = Number(p.income || 0);
-      const expenseNum = Number(p.expense || 0);
-      const widthBase = maxValue <= 0 ? 0 : 100 / maxValue;
-      return {
-        date: p.date,
-        day: p.date ? p.date.slice(5) : '',
-        income: this.moneyToFixed2(incomeNum),
-        expense: this.moneyToFixed2(expenseNum),
-        incomeWidth: widthBase ? incomeNum * widthBase : 0,
-        expenseWidth: widthBase ? expenseNum * widthBase : 0
-      };
-    });
-
-    this.setData({ trendLast7 });
   },
 
   async loadRecords(append) {
@@ -975,7 +966,7 @@ Page({
   },
 
   // 生成某个月份的工作日列表（周日/周六排除）
-  generateWorkdaysForMonth(month) {
+  generateWorkdaysForMonth(month, exceptions = this.data.batchCalendarExceptions) {
     const [yearStr, monthStr] = (month || '').split('-');
     const year = Number(yearStr);
     const m = Number(monthStr);
@@ -986,17 +977,17 @@ Page({
     for (let day = 1; day <= daysInMonth; day++) {
       const d = new Date(year, m - 1, day);
       const week = d.getDay();
-      if (week !== 0 && week !== 6) {
-        const mm = `${m}`.padStart(2, '0');
-        const dd = `${day}`.padStart(2, '0');
-        dates.push(`${year}-${mm}-${dd}`);
-      }
+      const mm = `${m}`.padStart(2, '0');
+      const dd = `${day}`.padStart(2, '0');
+      const date = `${year}-${mm}-${dd}`;
+      const exception = exceptions[date];
+      if (exception ? !exception.offDay : week !== 0 && week !== 6) dates.push(date);
     }
     return dates;
   },
 
   // 构建月历网格（每行7列，周一为第一列）
-  buildCalendarCells(month, selectedDates) {
+  buildCalendarCells(month, selectedDates, exceptions = this.data.batchCalendarExceptions) {
     const [yearStr, monthStr] = (month || '').split('-');
     const year = Number(yearStr);
     const m = Number(monthStr);
@@ -1031,7 +1022,8 @@ Page({
       const date = `${year}-${mm}-${dd}`;
       const d = new Date(year, m - 1, day);
       const week = d.getDay();
-      const isWorkday = week !== 0 && week !== 6;
+      const exception = exceptions[date];
+      const isWorkday = exception ? !exception.offDay : week !== 0 && week !== 6;
       cells.push({
         key: date,
         date,
@@ -1039,6 +1031,7 @@ Page({
         inMonth: true,
         selected: selectedSet.has(date),
         isWorkday,
+        marker: exception ? (exception.offDay ? '休' : '班') : '',
         selectable: true
       });
     }
@@ -1076,4 +1069,3 @@ Page({
     };
   }
 });
-
